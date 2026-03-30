@@ -1,0 +1,2 @@
+pdf_input/* filter=lfs diff=lfs merge=lfs -text
+pramana_engine/data/external_json_output/* filter=lfs diff=lfs merge=lfs -text

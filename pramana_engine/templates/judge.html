@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judge Dashboard - Pramana Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f1e6;
+  --panel: #fffdf8;
+  --ink: #24170f;
+  --muted: #6c5d4f;
+  --border: #d9c7a8;
+  --accent: #b75014;
+  --focus: #d88d2a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--ink);
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(183,80,20,.14), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(20,93,102,.14), transparent 32%),
+    repeating-linear-gradient(45deg, rgba(160,120,70,.05) 0 2px, transparent 2px 18px),
+    linear-gradient(160deg, #fbf5eb, var(--bg));
+}
+
+.wrap {
+  width: min(1040px, 96vw);
+  margin: 20px auto 28px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 26px rgba(50,28,10,.11);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font: 700 24px "Cinzel", serif;
+  color: var(--accent);
+}
+
+.sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nav {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.nav a { color: #8e4e18; text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+
+.guide {
+  margin-top: 12px;
+  border: 1px solid #e8d4b2;
+  border-radius: 10px;
+  padding: 10px;
+  background: linear-gradient(135deg, #fff8ea, #fffdf8);
+}
+
+.guide h3 {
+  margin: 0 0 6px;
+  font: 700 13px "Cinzel", serif;
+  color: #7b2949;
+}
+
+.guide ol {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+  font-size: 12px;
+  color: #4f4134;
+}
+
+label {
+  display:block;
+  margin-bottom:8px;
+  font-size: 11px;
+  font-weight:700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+
+input, button, textarea { font-size:14px; }
+
+input {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fffefb;
+  color: var(--ink);
+  font: 13px "JetBrains Mono", monospace;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(216, 141, 42, 0.18);
+}
+
+button {
+  margin-top: 10px;
+  background: linear-gradient(120deg, #c85a14, #8f2f15);
+  color:#fff;
+  border:0;
+  padding:11px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font: 700 13px "JetBrains Mono", monospace;
+}
+
+button:hover { filter: brightness(1.07); }
+
+.hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #7a6957;
+}
+
+pre {
+  background:#181511;
+  color:#f0dec0;
+  padding:12px;
+  overflow:auto;
+  border-radius:8px;
+  max-height: 340px;
+}
+
+.table { width:100%; border-collapse:collapse; font-size: 12px; }
+.table th,.table td { border-bottom:1px solid #eadcc7; padding:8px; text-align:left; }
+.table th { color: var(--muted); }
+
+.badge {
+  display:inline-block;
+  padding:4px 9px;
+  border-radius:99px;
+  background:#f3e5ca;
+  margin-right:6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Judge Dashboard</h1>
+    <p class="sub">Upload dataset JSON and compute submission quality signals with transparent status breakdown and checklist output.</p>
+    <div class="nav">
+      <a href="/">Open Unified Workspace</a>
+      <a href="/app">Back to Main App</a>
+      <a href="/compare">Open Comparator</a>
+    </div>
+    <div class="guide">
+      <h3>How To Use</h3>
+      <ol>
+        <li>Upload a valid JSON dataset.</li>
+        <li>Run Judge Analysis to compute quality metrics.</li>
+        <li>Review status distribution and checklist for gaps.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="dataset">Dataset JSON</label>
+    <input id="dataset" type="file" accept="application/json">
+    <div class="hint">Accepted: UTF-8 JSON files compatible with infer upload schema.</div>
+    <button onclick="runJudge()">Run Judge Analysis</button>
+    <div id="status" class="status">Waiting for file upload.</div>
+  </div>
+
+  <div id="output" class="card" style="display:none"></div>
+</div>
+
+<script>
+async function runJudge() {
+  const status = document.getElementById('status');
+  const f = document.getElementById('dataset');
+  if (!f.files || !f.files.length) {
+    alert('Choose a JSON file first.');
+    status.textContent = 'Please choose a JSON file first.';
+    return;
+  }
+
+  status.textContent = 'Uploading dataset and running judge analysis...';
+
+  const formData = new FormData();
+  formData.append('file', f.files[0]);
+
+  const uploadResp = await fetch('/api/infer-upload', { method: 'POST', body: formData });
+  const uploadData = await uploadResp.json();
+  if (!uploadResp.ok) {
+    const details = uploadData.detected_payload_message ? `\n${uploadData.detected_payload_message}` : '';
+    alert((uploadData.error || 'Upload failed') + details);
+    status.textContent = uploadData.detected_payload_message
+      ? `Upload failed. ${uploadData.detected_payload_message}`
+      : 'Upload failed.';
+    return;
+  }
+
+  const judgeResp = await fetch('/api/judge-report', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({rows: uploadData.rows}),
+  });
+  const judgeData = await judgeResp.json();
+  if (!judgeResp.ok) {
+    alert(judgeData.error || 'Judge analysis failed');
+    status.textContent = 'Judge analysis failed.';
+    return;
+  }
+
+  const counts = judgeData.status_counts;
+  const rows = Object.keys(counts).map(k => `<tr><td>${k}</td><td>${counts[k]}</td></tr>`).join('');
+  const output = document.getElementById('output');
+  output.style.display = 'block';
+  output.innerHTML = `
+    <h2>Judge Summary</h2>
+    <p><span class="badge">Detected: ${uploadData.detected_payload_type || 'unknown'}</span> <span class="badge">${uploadData.detected_payload_message || 'Schema detection unavailable'}</span></p>
+    <p><span class="badge">Total rows: ${judgeData.total}</span> <span class="badge">Quality score: ${judgeData.quality_score}</span></p>
+    <table class="table"><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>${rows}</tbody></table>
+    <h3>Checklist</h3>
+    <pre>${JSON.stringify(judgeData.checklist, null, 2)}</pre>
+  `;
+
+  status.textContent = 'Judge analysis complete.';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unified Workspace - Pramana Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5efe2;
+  --panel: #fffaf0;
+  --ink: #1f1912;
+  --muted: #6f6458;
+  --accent: #a34a1f;
+  --accent-2: #2f6b5f;
+  --border: #d7c6ae;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(163, 74, 31, 0.16), transparent 26%),
+    radial-gradient(circle at 86% 10%, rgba(47, 107, 95, 0.14), transparent 30%),
+    linear-gradient(160deg, #f8f3e8, var(--bg));
+}
+.shell {
+  width: min(1280px, 96vw);
+  margin: 16px auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 12px 24px rgba(47, 36, 26, 0.12);
+}
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(120deg, #fffdf8, #f4ead8);
+}
+.brand {
+  margin-right: auto;
+}
+.brand h1 {
+  margin: 0;
+  font: 700 20px "Cinzel", serif;
+}
+.brand p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.tool-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.tool-btn.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.quick-links {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.quick-links a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+.quick-links a:hover { text-decoration: underline; }
+.frame-wrap {
+  height: calc(100vh - 130px);
+  min-height: 620px;
+}
+#toolFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+@media (max-width: 860px) {
+  .frame-wrap { height: calc(100vh - 180px); }
+}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Unified Pramana Workspace</h1>
+        <p>Use everything in one frame: Main, Judge, Compare, and RAG Dashboard.</p>
+      </div>
+      <button class="tool-btn active" data-src="/app" onclick="openTool(event)">Main App</button>
+      <button class="tool-btn" data-src="/judge" onclick="openTool(event)">Judge</button>
+      <button class="tool-btn" data-src="/compare" onclick="openTool(event)">Compare</button>
+      <button class="tool-btn" data-src="/dashboard" onclick="openTool(event)">RAG Dashboard</button>
+      <span class="quick-links">Direct: <a href="/app" target="_blank">Main</a> | <a href="/judge" target="_blank">Judge</a> | <a href="/compare" target="_blank">Compare</a> | <a href="/dashboard" target="_blank">RAG</a></span>
+    </div>
+    <div class="frame-wrap">
+      <iframe id="toolFrame" src="/app" title="Unified Tool Frame"></iframe>
+    </div>
+  </div>
+
+<script>
+function openTool(event) {
+  const src = event.currentTarget.getAttribute('data-src');
+  document.getElementById('toolFrame').setAttribute('src', src);
+  document.querySelectorAll('.tool-btn').forEach((btn) => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

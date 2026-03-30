@@ -1,0 +1,849 @@
+[
+  {
+    "id": "pratyaksha_immediate",
+    "keywords": [
+      "pratyak",
+      "immediate",
+      "mediate"
+    ],
+    "answer_option": "B",
+    "answer_text": "Immediate knowledge",
+    "explanation": "Pratyaksa is direct, immediate cognition.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.97
+  },
+  {
+    "id": "nirvikalpaka_indeterminate",
+    "keywords": [
+      "indeterminate",
+      "nirvikalpaka"
+    ],
+    "answer_option": "B",
+    "answer_text": "Nirvikalpaka",
+    "explanation": "Nirvikalpaka perception is indeterminate, without conceptual classification.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.96
+  },
+  {
+    "id": "savikalpaka_conceptual",
+    "keywords": [
+      "savikalpaka",
+      "conceptualization",
+      "concept"
+    ],
+    "answer_option": "B",
+    "answer_text": "Conceptualization",
+    "explanation": "Savikalpaka perception includes conceptual determination.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.95
+  },
+  {
+    "id": "extraordinary_perception",
+    "keywords": [
+      "extraordinary perception",
+      "samanyalakshana",
+      "samanyalaksana"
+    ],
+    "answer_option": "A",
+    "answer_text": "Samanyalaksana",
+    "explanation": "Extraordinary perception includes forms such as Samanyalaksana.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.92
+  },
+  {
+    "id": "sense_object_contact",
+    "keywords": [
+      "sense-object contact",
+      "sense object",
+      "necessary for"
+    ],
+    "answer_option": "B",
+    "answer_text": "Pratyaksa",
+    "explanation": "Sense-object contact is central to ordinary perceptual cognition.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.93
+  },
+  {
+    "id": "illusion_aprama",
+    "keywords": [
+      "illusion",
+      "aprama",
+      "aprama"
+    ],
+    "answer_option": "B",
+    "answer_text": "Aprama",
+    "explanation": "Illusion is invalid cognition, i.e., Aprama.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.92
+  },
+  {
+    "id": "perception_depends_sense_organs",
+    "keywords": [
+      "perception depends",
+      "sense organs"
+    ],
+    "answer_option": "B",
+    "answer_text": "Sense organs",
+    "explanation": "Perception depends on functioning sense faculties.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.94
+  },
+  {
+    "id": "yogaja_extraordinary",
+    "keywords": [
+      "yogaja",
+      "extraordinary",
+      "ordinary"
+    ],
+    "answer_option": "B",
+    "answer_text": "Extraordinary",
+    "explanation": "Yogaja perception is classified as extraordinary perception.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.91
+  },
+  {
+    "id": "pratyabhijna_recognition",
+    "keywords": [
+      "pratyabhij",
+      "recognition"
+    ],
+    "answer_option": "B",
+    "answer_text": "Recognition",
+    "explanation": "Pratyabhijna means recognition.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.95
+  },
+  {
+    "id": "anumana_vyapti",
+    "keywords": [
+      "anumana is based",
+      "anumana is based",
+      "vyapti",
+      "vyapti"
+    ],
+    "answer_option": "B",
+    "answer_text": "Vyapti",
+    "explanation": "Anumana depends on vyapti, the invariable relation.",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+  {
+    "id": "hetu_universal",
+    "keywords": [
+      "hetu",
+      "universal",
+      "reason"
+    ],
+    "answer_option": "B",
+    "answer_text": "Universal",
+    "explanation": "A valid hetu must support a universal relation to the sadhya.",
+    "pramana": "Anumana",
+    "confidence": 0.91
+  },
+  {
+    "id": "paksha_subject",
+    "keywords": [
+      "paksa",
+      "paksha means",
+      "subject"
+    ],
+    "answer_option": "B",
+    "answer_text": "Subject",
+    "explanation": "Paksha is the subject under consideration in inference.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "smoke_fire",
+    "keywords": [
+      "example of inference",
+      "smoke",
+      "fire"
+    ],
+    "answer_option": "B",
+    "answer_text": "Smoke -> Fire",
+    "explanation": "Classic inference: smoke indicates fire under known vyapti.",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+  {
+    "id": "vyapti_universal_relation",
+    "keywords": [
+      "vyapti means",
+      "vyapti means",
+      "universal relation"
+    ],
+    "answer_option": "B",
+    "answer_text": "Universal relation",
+    "explanation": "Vyapti is an invariable universal concomitance.",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+  {
+    "id": "hetvabhasa",
+    "keywords": [
+      "fallacy of reason",
+      "hetvabhasa",
+      "hetvabhasa"
+    ],
+    "answer_option": "A",
+    "answer_text": "Hetvabhasa",
+    "explanation": "Hetvabhasa is the fallacious reason in Nyaya logic.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "five_member_syllogism",
+    "keywords": [
+      "five-member syllogism",
+      "5 steps"
+    ],
+    "answer_option": "B",
+    "answer_text": "5 steps",
+    "explanation": "Nyaya syllogism has five members.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "drstanta_example",
+    "keywords": [
+      "drstanta",
+      "drstanta",
+      "means"
+    ],
+    "answer_option": "A",
+    "answer_text": "Example",
+    "explanation": "Drstanta is the familiar example in inference.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "nigamana_conclusion",
+    "keywords": [
+      "nigamana",
+      "conclusion"
+    ],
+    "answer_option": "B",
+    "answer_text": "Conclusion",
+    "explanation": "Nigamana is the concluding member of syllogism.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "anumana_types_three",
+    "keywords": [
+      "anumana types",
+      "anumana types",
+      "purvavat",
+      "sesavat",
+      "samanyato"
+    ],
+    "answer_option": "B",
+    "answer_text": "3",
+    "explanation": "Three common types are Purvavat, Sesavat, and Samanyato drsta.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "upamana_comparison",
+    "keywords": [
+      "upamana means",
+      "upamana means",
+      "comparison"
+    ],
+    "answer_option": "B",
+    "answer_text": "Comparison",
+    "explanation": "Upamana is knowledge through comparison/similarity.",
+    "pramana": "Upamana",
+    "confidence": 0.94
+  },
+  {
+    "id": "gavaya_upamana",
+    "keywords": [
+      "gavaya",
+      "knowledge of gavaya"
+    ],
+    "answer_option": "B",
+    "answer_text": "Upamana",
+    "explanation": "Gavaya example is standard for Upamana.",
+    "pramana": "Upamana",
+    "confidence": 0.94
+  },
+  {
+    "id": "upamana_similarity",
+    "keywords": [
+      "upamana depends",
+      "upamana depends",
+      "similarity"
+    ],
+    "answer_option": "A",
+    "answer_text": "Similarity",
+    "explanation": "Upamana relies on perceived similarity relation.",
+    "pramana": "Upamana",
+    "confidence": 0.93
+  },
+  {
+    "id": "nyaya_upamana_independent",
+    "keywords": [
+      "nyaya accepts upamana",
+      "independent pramana",
+      "independent pramana"
+    ],
+    "answer_option": "A",
+    "answer_text": "Independent pramana",
+    "explanation": "Nyaya treats Upamana as an independent pramana.",
+    "pramana": "Upamana",
+    "confidence": 0.92
+  },
+  {
+    "id": "shabda_authority",
+    "keywords": [
+      "shabda is based",
+      "shabda is based",
+      "authority"
+    ],
+    "answer_option": "B",
+    "answer_text": "Authority",
+    "explanation": "Shabda depends on trustworthy authority (apta-vakya).",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "apta_reliable",
+    "keywords": [
+      "apta",
+      "apta means"
+    ],
+    "answer_option": "B",
+    "answer_text": "Reliable person",
+    "explanation": "Apta denotes a reliable, competent speaker.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "vedic_authorless",
+    "keywords": [
+      "vedic testimony",
+      "authorless"
+    ],
+    "answer_option": "B",
+    "answer_text": "Authorless",
+    "explanation": "Classical view treats Vedic testimony as authorless.",
+    "pramana": "Shabda",
+    "confidence": 0.9
+  },
+  {
+    "id": "shabda_unseen",
+    "keywords": [
+      "shabda gives knowledge",
+      "unseen objects"
+    ],
+    "answer_option": "B",
+    "answer_text": "Unseen objects",
+    "explanation": "Shabda can provide knowledge beyond immediate perception.",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+  {
+    "id": "shabda_verbal",
+    "keywords": [
+      "shabda is",
+      "verbal knowledge"
+    ],
+    "answer_option": "B",
+    "answer_text": "Verbal knowledge",
+    "explanation": "Shabda is verbal testimony-based knowledge.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "arthapatti_presumption",
+    "keywords": [
+      "arthapatti means",
+      "arthapatti means",
+      "presumption"
+    ],
+    "answer_option": "B",
+    "answer_text": "Presumption",
+    "explanation": "Arthapatti is postulation/presumption to resolve inconsistency.",
+    "pramana": "Arthapatti",
+    "confidence": 0.92
+  },
+  {
+    "id": "fat_man_fasting",
+    "keywords": [
+      "fat man fasting",
+      "arthapatti"
+    ],
+    "answer_option": "B",
+    "answer_text": "Arthapatti",
+    "explanation": "The classic fat-man-fasting case illustrates Arthapatti.",
+    "pramana": "Arthapatti",
+    "confidence": 0.93
+  },
+  {
+    "id": "arthapatti_mimamsa",
+    "keywords": [
+      "arthapatti",
+      "accepted by",
+      "mimamsa",
+      "mimamsa"
+    ],
+    "answer_option": "B",
+    "answer_text": "Mimamsa",
+    "explanation": "Mimamsa explicitly accepts Arthapatti as pramana.",
+    "pramana": "Arthapatti",
+    "confidence": 0.9
+  },
+  {
+    "id": "arthapatti_contradiction",
+    "keywords": [
+      "arthapatti resolves",
+      "contradiction"
+    ],
+    "answer_option": "B",
+    "answer_text": "Contradiction",
+    "explanation": "Arthapatti is used to resolve apparent contradiction.",
+    "pramana": "Arthapatti",
+    "confidence": 0.92
+  },
+  {
+    "id": "arthapatti_indirect",
+    "keywords": [
+      "arthapatti",
+      "type of knowledge",
+      "indirect"
+    ],
+    "answer_option": "B",
+    "answer_text": "Indirect",
+    "explanation": "Arthapatti yields mediated/indirect cognition.",
+    "pramana": "Arthapatti",
+    "confidence": 0.9
+  },
+  {
+    "id": "anupalabdhi_absence",
+    "keywords": [
+      "anupalabdhi means",
+      "absence"
+    ],
+    "answer_option": "B",
+    "answer_text": "Absence",
+    "explanation": "Anupalabdhi is cognition of absence/non-apprehension.",
+    "pramana": "Abhava",
+    "confidence": 0.92
+  },
+  {
+    "id": "anupalabdhi_bhatta",
+    "keywords": [
+      "anupalabdhi",
+      "bhatta",
+      "bhatta",
+      "accepted by"
+    ],
+    "answer_option": "B",
+    "answer_text": "Bhatta Mimamsa",
+    "explanation": "Bhatta Mimamsa accepts Anupalabdhi as pramana.",
+    "pramana": "Abhava",
+    "confidence": 0.9
+  },
+  {
+    "id": "no_pot_floor",
+    "keywords": [
+      "no pot on floor",
+      "example",
+      "anupalabdhi"
+    ],
+    "answer_option": "B",
+    "answer_text": "Anupalabdhi",
+    "explanation": "No-pot-on-floor is a classic absence-cognition case.",
+    "pramana": "Abhava",
+    "confidence": 0.91
+  },
+  {
+    "id": "absence_knowledge",
+    "keywords": [
+      "knowledge of absence"
+    ],
+    "answer_option": "B",
+    "answer_text": "Anupalabdhi",
+    "explanation": "Knowledge of absence is attributed to Anupalabdhi in relevant schools.",
+    "pramana": "Abhava",
+    "confidence": 0.9
+  },
+  {
+    "id": "negative_cognition",
+    "keywords": [
+      "type of cognition",
+      "negative"
+    ],
+    "answer_option": "B",
+    "answer_text": "Negative",
+    "explanation": "Anupalabdhi concerns negative cognition.",
+    "pramana": "Abhava",
+    "confidence": 0.9
+  },
+  {
+    "id": "nyaya_accepts_four",
+    "keywords": [
+      "nyaya accepts",
+      "nyaya accepts"
+    ],
+    "answer_option": "C",
+    "answer_text": "4",
+    "explanation": "Nyaya accepts four pramanas.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "vaisesika_accepts_two",
+    "keywords": [
+      "vaisesika accepts",
+      "vaisesika accepts"
+    ],
+    "answer_option": "A",
+    "answer_text": "2",
+    "explanation": "Vaisesika traditionally accepts two pramanas.",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+  {
+    "id": "nyaya_not_arthapatti",
+    "keywords": [
+      "not accepted",
+      "nyaya does not",
+      "nyaya rejects",
+      "not a pramana nyaya"
+    ],
+    "answer_option": "C",
+    "answer_text": "Arthapatti",
+    "explanation": "Nyaya accepts only four pramanas: Pratyaksa, Anumana, Upamana, Sabda. Arthapatti is NOT among them.",
+    "pramana": "Arthapatti",
+    "confidence": 0.95
+  },
+  {
+    "id": "nyaya_four_pramanas",
+    "keywords": [
+      "how many pramanas",
+      "nyaya accepts how many",
+      "classical nyaya number"
+    ],
+    "answer_option": "C",
+    "answer_text": "4",
+    "explanation": "Classical Nyaya school accepts exactly four pramanas: Pratyaksa, Anumana, Upamana, Sabda.",
+    "pramana": "Shabda",
+    "confidence": 0.97
+  },
+  {
+    "id": "mimamsa_advaita_arthapatti",
+    "keywords": [
+      "only by mimamsa",
+      "mimamsa advaita pramana",
+      "advaita vedanta pramana only"
+    ],
+    "answer_option": "B",
+    "answer_text": "Arthapatti",
+    "explanation": "Arthapatti is specifically accepted as an independent pramana by Mimamsa and Advaita Vedanta.",
+    "pramana": "Arthapatti",
+    "confidence": 0.9
+  },
+  {
+    "id": "perception_sense_contact_nyaya",
+    "keywords": [
+      "sense-object contact definition",
+      "perception produced by senses",
+      "definition of perception"
+    ],
+    "answer_option": "B",
+    "answer_text": "Nyaya",
+    "explanation": "Nyaya defines perception (pratyaksa) as knowledge produced by sense-object contact (indriyartha-sannikarsa).",
+    "pramana": "Pratyaksa",
+    "confidence": 0.96
+  },
+  {
+    "id": "anumana_not_kevalanyogin",
+    "keywords": [
+      "not a type of anumana",
+      "anumana types nyaya",
+      "purvavat sesavat samanyato"
+    ],
+    "answer_option": "D",
+    "answer_text": "Kevalanyogin",
+    "explanation": "Nyaya lists three types: Purvavat, Sesavat, Samanyato drsta. Kevalanyogin is NOT a standard Nyaya type.",
+    "pramana": "Anumana",
+    "confidence": 0.91
+  },
+  {
+    "id": "carvaka_pratyaksha_only",
+    "keywords": [
+      "carvaka accepts",
+      "carvaka pramana",
+      "materialist school pramana",
+      "lokayata"
+    ],
+    "answer_option": "A",
+    "answer_text": "Pratyaksa only",
+    "explanation": "Carvaka (Lokayata) accepts only Pratyaksa (direct perception), rejecting inference, comparison and testimony.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.97
+  },
+  {
+    "id": "inference_depends_vyapti",
+    "keywords": [
+      "inference depends on",
+      "nyaya inference based on",
+      "what makes anumana valid"
+    ],
+    "answer_option": "A",
+    "answer_text": "Vyapti (invariable concomitance)",
+    "explanation": "In Nyaya, anumana is grounded in vyapti - the invariable universal concomitance between hetu and sadhya.",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+  {
+    "id": "devadatta_fat_fasting",
+    "keywords": [
+      "devadatta fat",
+      "not eat during the day",
+      "fat man fasting illustrates"
+    ],
+    "answer_option": "B",
+    "answer_text": "Arthapatti",
+    "explanation": "The fat man who does not eat by day must eat by night - this is the classic illustration of Arthapatti (postulation).",
+    "pramana": "Arthapatti",
+    "confidence": 0.96
+  },
+  {
+    "id": "pramana_absence_abhava",
+    "keywords": [
+      "deals with absence",
+      "knowledge of absence",
+      "which pramana absence"
+    ],
+    "answer_option": "C",
+    "answer_text": "Anupalabdhi / Abhava",
+    "explanation": "Abhava (Anupalabdhi) is the pramana that yields knowledge of non-existence or absence of an object.",
+    "pramana": "Abhava",
+    "confidence": 0.95
+  },
+  {
+    "id": "buddhism_two_pramanas",
+    "keywords": [
+      "buddhism accepts",
+      "buddha pramana how many",
+      "dignaga pramana"
+    ],
+    "answer_option": "B",
+    "answer_text": "2",
+    "explanation": "Buddhist epistemologists (Dignaga, Dharmakirti) accept only two pramanas: Pratyaksa and Anumana.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "linguistic_knowledge_shabda",
+    "keywords": [
+      "linguistic understanding",
+      "verbal knowledge pramana",
+      "language related pramana"
+    ],
+    "answer_option": "B",
+    "answer_text": "Sabda",
+    "explanation": "Sabda pramana is knowledge from authoritative verbal testimony - the source of linguistic and scriptural understanding.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "nirvikalpaka_nyaya_accepts",
+    "keywords": [
+      "nirvikalpaka accepted by",
+      "indeterminate perception school",
+      "who accepts nirvikalpaka"
+    ],
+    "answer_option": "A",
+    "answer_text": "Nyaya",
+    "explanation": "Nyaya explicitly accepts Nirvikalpaka (indeterminate) perception as the first stage of perceptual cognition.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.93
+  },
+  {
+    "id": "upamana_rejected_buddhism",
+    "keywords": [
+      "rejects upamana",
+      "upamana not independent",
+      "who does not accept upamana as independent"
+    ],
+    "answer_option": "C",
+    "answer_text": "Buddhism",
+    "explanation": "Buddhist epistemologists reject Upamana as an independent pramana, reducing it to Anumana (inference from similarity).",
+    "pramana": "Upamana",
+    "confidence": 0.91
+  },
+  {
+    "id": "sesavat_effect_cause",
+    "keywords": [
+      "sesavat anumana",
+      "sesavat inference",
+      "from effect to cause inference"
+    ],
+    "answer_option": "B",
+    "answer_text": "Effect (inferring cause from effect)",
+    "explanation": "Sesavat anumana infers the cause from the observed effect - e.g., inferring past rain from a swollen river.",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+  {
+    "id": "samanyato_drsta_general",
+    "keywords": [
+      "samanyato drsta based on",
+      "general observation inference",
+      "samanyalaksana anumana"
+    ],
+    "answer_option": "B",
+    "answer_text": "General class-based observation",
+    "explanation": "Samanyato drsta anumana is based on general class observation of invariable concomitance without a direct causal relation.",
+    "pramana": "Anumana",
+    "confidence": 0.92
+  },
+  {
+    "id": "pratyaksha_empirical_primary",
+    "keywords": [
+      "primary for empirical",
+      "empirical science pramana",
+      "which pramana for science"
+    ],
+    "answer_option": "C",
+    "answer_text": "Pratyaksa",
+    "explanation": "Pratyaksa (direct perception) is the primary pramana for empirical sciences in Indian philosophy.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.94
+  },
+  {
+    "id": "prama_yathartha",
+    "keywords": [
+      "characteristic of prama",
+      "valid cognition characteristic",
+      "prama yathartha"
+    ],
+    "answer_option": "C",
+    "answer_text": "Yathartha (object-conforming)",
+    "explanation": "The defining characteristic of prama is yatharthata - the cognition must faithfully conform to its object as it actually is.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.93
+  },
+  {
+    "id": "pramata_knower",
+    "keywords": [
+      "pramata refers",
+      "pramata means",
+      "who is pramata"
+    ],
+    "answer_option": "C",
+    "answer_text": "The knower (subject of cognition)",
+    "explanation": "Pramata is the knowing subject - the agent who exercises a pramana to obtain valid cognition (prama).",
+    "pramana": "Pratyaksa",
+    "confidence": 0.94
+  },
+  {
+    "id": "inference_dependent_carvaka",
+    "keywords": [
+      "inference dependent on perception",
+      "school reduces inference to perception",
+      "perception dependent inference"
+    ],
+    "answer_option": "B",
+    "answer_text": "Carvaka",
+    "explanation": "Carvaka holds that anumana is ultimately dependent on and reducible to pratyaksa - inference not grounded in perception is unreliable.",
+    "pramana": "Anumana",
+    "confidence": 0.9
+  },
+  {
+    "id": "hetu_five_characteristics",
+    "keywords": [
+      "hetu must satisfy how many",
+      "hetu characteristics number",
+      "pancalaksana hetu"
+    ],
+    "answer_option": "B",
+    "answer_text": "5 (Pancalaksana)",
+    "explanation": "A valid hetu in Nyaya must satisfy five characteristics: Paksasat, Sapaksasat, Vipaksasat, Badhita, Asatpratipaksa.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "hetvabhasa_not_vyapti",
+    "keywords": [
+      "not a hetvabhasa",
+      "hetvabhasa list not",
+      "fallacy of reason not"
+    ],
+    "answer_option": "D",
+    "answer_text": "Vyapti",
+    "explanation": "Vyapti (invariable concomitance) is the ground of valid inference, NOT a fallacy. The five Hetvabhasas are Savyabhicara, Viruddha, Satpratipaksa, Asiddha, Badhita.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "savyabhicara_irregular",
+    "keywords": [
+      "savyabhicara means",
+      "savyabhicara hetvabhasa",
+      "uncertain reason fallacy"
+    ],
+    "answer_option": "B",
+    "answer_text": "Irregular / uncertain reason",
+    "explanation": "Savyabhicara is the fallacy of an irregular hetu present in both sapaksa and vipaksa, making the reason non-conclusive.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "upamana_reduced_to_anumana",
+    "keywords": [
+      "reduced to inference",
+      "critics reduce pramana",
+      "upamana anumana reduction"
+    ],
+    "answer_option": "B",
+    "answer_text": "Upamana",
+    "explanation": "Critics (especially Buddhist logicians) argue that Upamana is merely a form of Anumana and not an independent pramana.",
+    "pramana": "Upamana",
+    "confidence": 0.93
+  },
+  {
+    "id": "brahman_sabda_advaita",
+    "keywords": [
+      "brahman known through advaita",
+      "advaita vedanta brahman pramana",
+      "upanishad brahman knowledge"
+    ],
+    "answer_option": "C",
+    "answer_text": "Sabda (Agama / Upanishads)",
+    "explanation": "In Advaita Vedanta, Brahman (nirguna) transcends perception and inference; it is known only through Sabda - the Upanishads.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "vaisesika_two_only",
+    "keywords": [
+      "accepts only two pramanas",
+      "two pramanas school",
+      "which school two pramanas"
+    ],
+    "answer_option": "C",
+    "answer_text": "Vaisesika",
+    "explanation": "Vaisesika traditionally accepts only two pramanas: Pratyaksa and Anumana, rejecting Upamana and Sabda as independent.",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+  {
+    "id": "viparyaya_error",
+    "keywords": [
+      "viparyaya means",
+      "viparyaya definition",
+      "wrong cognition term viparyaya"
+    ],
+    "answer_option": "B",
+    "answer_text": "Error / wrong cognition (Aprama)",
+    "explanation": "Viparyaya is erroneous cognition - a form of Aprama where the object is apprehended contrary to its actual nature (e.g. rope-snake error).",
+    "pramana": "Pratyaksa",
+    "confidence": 0.95
+  }
+]

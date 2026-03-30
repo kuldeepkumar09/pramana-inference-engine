@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pramana Inference Engine — A0 Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Devanagari:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS ═══ */
+:root {
+  --valid:       #1db954;
+  --unjustified: #e67e22;
+  --suspended:   #f0c040;
+  --invalid:     #e74c3c;
+  --navy:        #0d1b3e;
+  --navy-mid:    #1a3060;
+  --gold:        #c9a84c;
+  --light:       #f4f1eb;
+  --white:       #ffffff;
+  --text:        #1a1a1a;
+  --muted:       #555;
+  --border:      #d0ccc4;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ═══ SCREEN CHROME ═══ */
+body {
+  background: #4b5563;
+  padding-top: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+.print-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--navy-mid);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.4rem 1.2rem;
+  font-family: sans-serif; font-size: 13px; color: #ccd;
+  border-bottom: 3px solid var(--gold);
+}
+.print-bar strong { color: var(--gold); }
+.btn-print {
+  background: var(--gold); color: var(--navy);
+  border: none; border-radius: 5px;
+  padding: 0.3rem 1rem; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity .15s;
+}
+.btn-print:hover { opacity: .85; }
+
+/* ═══ POSTER — exact A0 ═══ */
+.poster-root {
+  width: 84.1cm;
+  height: 118.9cm;
+  overflow: hidden;
+  background: var(--light);
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  transform-origin: top center;
+  /* JS sets transform: scale() for screen */
+}
+
+/* ─── HEADER ─── */
+.hdr {
+  background: var(--navy);
+  color: var(--white);
+  padding: 0.5cm 1cm 0.4cm;
+  border-bottom: 0.18cm solid var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 0.6cm;
+  flex-shrink: 0;
+}
+.hdr-logo {
+  font-family: 'Noto Sans Devanagari', serif;
+  font-size: 68pt;
+  color: var(--gold);
+  line-height: 1;
+  flex-shrink: 0;
+}
+h1 {
+  font-size: 50pt;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 0.15cm;
+}
+.subtitle {
+  font-size: 27pt;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 0.12cm;
+}
+.authors { font-size: 21pt; color: #b8c8f0; }
+.conf-badge {
+  display: inline-block;
+  margin-top: 0.12cm;
+  background: var(--gold); color: var(--navy);
+  font-size: 17pt; font-weight: 700;
+  padding: 0.04cm 0.22cm; border-radius: 0.07cm;
+  font-family: 'Source Code Pro', monospace;
+}
+
+/* ─── ABSTRACT ─── */
+.abstract {
+  background: var(--navy-mid);
+  color: #dde4f5;
+  padding: 0.28cm 1cm;
+  font-size: 21pt;
+  font-style: italic;
+  line-height: 1.5;
+  border-bottom: 0.12cm solid var(--gold);
+  flex-shrink: 0;
+}
+.abstract strong { color: var(--gold); font-style: normal; }
+
+/* ─── GRID ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.38cm;
+  padding: 0.3cm 0.5cm;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.26cm;
+  min-height: 0;
+  overflow: hidden;
+}
+.card {
+  background: var(--white);
+  border-radius: 0.1cm;
+  border: 0.035cm solid var(--border);
+  padding: 0.28cm 0.35cm;
+  flex-shrink: 0;
+}
+
+/* ─── SECTION TITLE ─── */
+.sec {
+  font-size: 20pt;
+  font-weight: 700;
+  color: var(--navy);
+  border-bottom: 0.06cm solid var(--gold);
+  padding-bottom: 0.06cm;
+  margin-bottom: 0.18cm;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* ─── TEXT ─── */
+p   { font-size: 24pt; line-height: 1.48; margin-bottom: 0.14cm; }
+.sm { font-size: 21pt; line-height: 1.45; margin-bottom: 0.12cm; }
+.xs { font-size: 18pt; line-height: 1.45; }
+ul  { padding-left: 0.7cm; font-size: 22pt; line-height: 1.65; }
+ul li { margin-bottom: 0.04cm; }
+
+/* ─── STATUS PILLS ─── */
+.status-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.18cm; margin-bottom: 0.18cm; }
+.pill {
+  border-radius: 0.08cm;
+  padding: 0.13cm 0.18cm;
+  text-align: center;
+  font-weight: 700;
+  font-size: 18pt;
+}
+.p-valid       { background:#d5f5e3; border:0.045cm solid var(--valid);       color:#145a32; }
+.p-unjustified { background:#fdebd0; border:0.045cm solid var(--unjustified); color:#784212; }
+.p-suspended   { background:#fef9e7; border:0.045cm solid var(--suspended);   color:#7d6608; }
+.p-invalid     { background:#fdedec; border:0.045cm solid var(--invalid);     color:#7b241c; }
+.pill-desc { font-size: 14pt; font-weight: 400; margin-top: 0.03cm; }
+
+/* ─── REQ GRID ─── */
+.req-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1cm 0.22cm;
+  align-items: center;
+  margin-bottom: 0.18cm;
+}
+.rbadge {
+  background: var(--gold); color: var(--navy);
+  font-weight: 700; font-size: 16pt;
+  border-radius: 0.06cm; padding: 0.02cm 0.13cm;
+  text-align: center; white-space: nowrap;
+}
+.rtext { font-size: 20pt; line-height: 1.32; }
+
+/* ─── CODE ─── */
+.code {
+  background: #1e1e2e; color: #cdd6f4;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 15pt;
+  border-radius: 0.08cm;
+  padding: 0.18cm 0.25cm;
+  margin-bottom: 0.18cm;
+  white-space: pre;
+  line-height: 1.6;
+  border-left: 0.1cm solid var(--gold);
+}
+.kw  { color: #89b4fa; }
+.val { color: #f38ba8; }
+.cmt { color: #6c7086; }
+
+/* ─── ARCH ─── */
+.arch { display: flex; flex-direction: column; align-items: center; }
+.abox {
+  width: 95%;
+  padding: 0.13cm 0.22cm;
+  border-radius: 0.08cm;
+  text-align: center;
+  font-size: 17pt;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.asub   { font-size: 14pt; font-weight: 400; font-style: italic; }
+.aarrow { font-size: 20pt; color: var(--gold); line-height: 1; margin: 0.03cm 0; }
+.box-input    { background:#e8f4fd; border:0.04cm solid #3498db; color:#1a5276; }
+.box-retrieval{ background:#eaf4fb; border:0.04cm solid #2980b9; color:#154360; }
+.box-pramana  { background:#fef9e7; border:0.04cm solid var(--gold); color:#6e4c00; }
+.box-epistemic{ background:#eafaf1; border:0.04cm solid #27ae60; color:#145a32; }
+.box-llm      { background:#f5eef8; border:0.04cm solid #8e44ad; color:#4a235a; }
+.box-verdict  { background:var(--navy); border:0.04cm solid var(--gold); color:var(--white); }
+
+/* ─── PRAMĀṆA BARS ─── */
+.pbar-row { display: flex; align-items: center; gap: 0.25cm; margin-bottom: 0.15cm; }
+.pbar-label { width: 3.8cm; font-size: 17pt; font-weight: 600; text-align: right; flex-shrink: 0; line-height: 1.2; }
+.pbar-sa { font-family: 'Noto Sans Devanagari', serif; font-size: 14pt; color: var(--muted); display: block; }
+.pbar-track { flex: 1; background: #e8e8e8; border-radius: 0.06cm; height: 0.3cm; overflow: hidden; }
+.pbar-fill  { height: 100%; border-radius: 0.06cm; }
+.pbar-val   { width: 1.4cm; font-size: 17pt; font-weight: 700; color: var(--navy); }
+
+/* ─── TABLE ─── */
+table { width: 100%; border-collapse: collapse; margin-bottom: 0.18cm; }
+th { background: var(--navy); color: var(--white); padding: 0.08cm 0.12cm; font-size: 17pt; text-align: left; }
+td { padding: 0.06cm 0.12cm; border-bottom: 0.018cm solid #e8e8e8; font-size: 17pt; line-height: 1.38; vertical-align: top; }
+tr:nth-child(even) td { background: #f9f8f6; }
+.tick  { color: var(--valid);   font-weight: 700; }
+.cross { color: var(--invalid); font-weight: 700; }
+
+/* ─── TEST BAR ─── */
+.test-bar { background: #e0e0e0; border-radius: 0.08cm; overflow: hidden; height: 0.55cm; margin: 0.12cm 0; }
+.test-fill { height: 100%; background: var(--valid); border-radius: 0.08cm; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17pt; color: white; }
+
+/* ─── TAGS ─── */
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.08cm; margin-bottom: 0.16cm; }
+.tag { background: var(--navy); color: var(--white); font-size: 13pt; border-radius: 0.06cm; padding: 0.025cm 0.15cm; font-family: 'Source Code Pro', monospace; }
+
+/* ─── DONUT ─── */
+.donut-wrap { display: flex; align-items: center; gap: 0.45cm; margin-bottom: 0.18cm; }
+.donut {
+  width: 2.6cm; height: 2.6cm;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--valid)       0%  68%,
+    var(--suspended)   68% 86%,
+    var(--unjustified) 86% 96%,
+    var(--invalid)     96% 100%
+  );
+  flex-shrink: 0;
+  position: relative;
+}
+.donut::after { content:''; position:absolute; inset:25%; border-radius:50%; background:var(--white); }
+.donut-legend { font-size: 17pt; line-height: 1.75; }
+.dl { display: flex; align-items: center; gap: 0.12cm; }
+.dlc { width: 0.3cm; height: 0.3cm; border-radius: 0.04cm; flex-shrink: 0; }
+
+/* ─── COMPARE ─── */
+.cmp-row { display: flex; gap: 0.12cm; margin-bottom: 0.1cm; }
+.cmp-cell { flex:1; font-size: 17pt; background: #f0f4f8; border-left: 0.08cm solid var(--navy); padding: 0.07cm 0.12cm; border-radius: 0 0.06cm 0.06cm 0; line-height: 1.38; }
+.cmp-cell b { color: var(--navy); }
+
+/* ─── INLINE HELPERS ─── */
+.sa { font-family: 'Noto Sans Devanagari', serif; font-size: .85em; color: var(--navy); background: #f0e8d0; border-radius: 0.04cm; padding: 0 0.07cm; }
+
+/* ─── FOOTER ─── */
+.footer {
+  background: var(--navy);
+  color: #9aabb5;
+  font-size: 16pt;
+  padding: 0.22cm 1cm;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.15cm;
+  border-top: 0.12cm solid var(--gold);
+  flex-shrink: 0;
+}
+.footer strong { color: var(--gold); }
+.footer-sa { font-family: 'Noto Sans Devanagari', serif; font-size: 21pt; color: var(--gold); }
+
+/* ═══ PRINT ═══ */
+@media print {
+  body { background: none; padding: 0; display: block; }
+  .print-bar { display: none; }
+  @page { size: A0 portrait; margin: 0; }
+  .poster-root { transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <span>&#128203; <strong>Pramana Inference Engine</strong> &mdash; A0 Poster &middot; Unriddling Inference 2026 &middot; IIT Delhi</span>
+  <button class="btn-print" onclick="window.print()">&#128424; Print / Save as PDF (A0)</button>
+</div>
+
+<div class="poster-root" id="poster">
+
+  <!-- ══ HEADER ══ -->
+  <div class="hdr">
+    <div class="hdr-logo">&#x092A;&#x094D;&#x0930;</div>
+    <div>
+      <h1>Pramana Inference Engine: Implementing Ny&#257;ya Epistemology as an AI Reasoning Framework</h1>
+      <div class="subtitle">A RAG + LLM System Classifying Inferences as Valid, Unjustified, Suspended, or Invalid</div>
+      <div class="authors">IIT Delhi &middot; Department of Computer Science &amp; Engineering &middot; 2026</div>
+      <div class="conf-badge">CONF-2026 &middot; Unriddling Inference &middot; Poster Session</div>
+    </div>
+  </div>
+
+  <!-- ══ ABSTRACT ══ -->
+  <div class="abstract">
+    We present the <strong>Pramana Inference Engine</strong> &mdash; a neuro-symbolic AI system grounded in
+    <strong>Ny&#257;ya philosophy&rsquo;s</strong>
+    <span style="font-family:'Noto Sans Devanagari',serif;">&#x092A;&#x094D;&#x0930;&#x092E;&#x093E;&#x0923;</span>
+    <em>(pram&#257;&#7751;a)</em> theory. Five epistemic sources &mdash;
+    <em>praty&#x101;k&#7779;a, anum&#257;na, &#347;abda, upam&#257;na, arth&#257;patti</em> &mdash; serve as weighted evidence
+    channels in a hybrid RAG pipeline. A formal epistemic evaluator enforces five structural requirements (R1&ndash;R5),
+    producing machine-readable verdicts (<strong>VALID / UNJUSTIFIED / SUSPENDED / INVALID</strong>)
+    with full inference traces. <strong>120&thinsp;/&thinsp;120 tests pass</strong>. Deployed as a Flask REST API with a 4-tab unified UI.
+  </div>
+
+  <!-- ══ 3-COLUMN GRID ══ -->
+  <div class="grid">
+
+    <!-- ─── COL 1: INTRODUCTION ─── -->
+    <div class="col">
+      <div class="card">
+        <div class="sec">1 &middot; Introduction</div>
+
+        <p><strong>The Problem:</strong> Modern AI systems produce confident answers without distinguishing
+        <em>logically valid</em> from <em>epistemically justified</em> conclusions &mdash; a critical gap for high-stakes reasoning.</p>
+
+        <p><strong>Ny&#257;ya Solution</strong> <span class="sa">&#x0928;&#x094D;&#x092F;&#x093E;&#x092F;</span>
+        <em>(c.&nbsp;200&nbsp;BCE):</em>
+        India&rsquo;s most systematic inference theory requires every claim to pass <em>both</em> a logical gate
+        and an epistemic gate before acceptance as <em>pram&#257;</em> (true cognition).</p>
+
+        <div class="code"><span class="cmt"># Ny&#257;ya Aum&#257;na &mdash; Five-Member Inference</span>
+<span class="kw">Paksha</span>    <span class="val">"the hill"</span>     <span class="cmt"># subject</span>
+<span class="kw">Sadhya</span>    <span class="val">"has fire"</span>     <span class="cmt"># predicate to prove</span>
+<span class="kw">Hetu</span>      <span class="val">"has smoke"</span>    <span class="cmt"># inferential mark</span>
+<span class="kw">Vyapti</span>    <span class="val">"smoke &#8594; fire"</span> <span class="cmt"># invariable relation</span></div>
+
+        <div class="sec">Epistemic Requirements (R1&ndash;R5)</div>
+        <div class="req-grid">
+          <span class="rbadge">R1</span><span class="rtext">Represent propositions and evidence programmatically</span>
+          <span class="rbadge">R2</span><span class="rtext">Explicitly check justification before accepting</span>
+          <span class="rbadge">R3</span><span class="rtext">Distinguish VALID / UNJUSTIFIED / SUSPENDED</span>
+          <span class="rbadge">R4</span><span class="rtext">Reject invalid inference patterns (fallacies)</span>
+          <span class="rbadge">R5</span><span class="rtext">Output machine-readable reasoning traces</span>
+        </div>
+
+        <div class="sec">Verdict Classification</div>
+        <div class="status-row">
+          <div class="pill p-valid">&#10003; VALID<div class="pill-desc">Logic sound + epistemic warrant</div></div>
+          <div class="pill p-unjustified">&#9888; UNJUSTIFIED<div class="pill-desc">No pram&#257;&#7751;a support</div></div>
+          <div class="pill p-suspended">&#9208; SUSPENDED<div class="pill-desc">Defeater present &mdash; <em>sa&#7747;&#347;aya</em></div></div>
+          <div class="pill p-invalid">&#10007; INVALID<div class="pill-desc">Logical fallacy detected</div></div>
+        </div>
+
+        <p class="sm">Ny&#257;ya&rsquo;s <em>sa&#7747;&#347;aya</em>
+        <span class="sa">&#x0938;&#x0902;&#x0936;&#x092F;</span> (doubt) maps directly to SUSPENDED:
+        a defeater (<em>b&#257;dhita</em>
+        <span class="sa">&#x092C;&#x093E;&#x0927;&#x093F;&#x0924;</span>) suspends judgment pending further evidence.</p>
+      </div>
+    </div>
+
+    <!-- ─── COL 2: METHODS ─── -->
+    <div class="col">
+      <div class="card">
+        <div class="sec">2 &middot; System Architecture</div>
+
+        <div class="arch">
+          <div class="abox box-input">&#128196; User Query / Uploaded PDF<div class="asub">Text, MCQ questions, anum&#257;na forms</div></div>
+          <div class="aarrow">&#9660;</div>
+          <div class="abox box-retrieval">&#128269; Hybrid Retrieval<div class="asub">FAISS (e5-small-v2) + BM25 &middot; RRF Fusion 60/40</div></div>
+          <div class="aarrow">&#9660;</div>
+          <div class="abox box-pramana">&#9878;&#65039; Pram&#257;&#7751;a Weighting<div class="asub">5 epistemic channels &middot; Ny&#257;ya S&#363;tra NS-1.1.3</div></div>
+          <div class="aarrow">&#9660;</div>
+          <div class="abox box-epistemic">&#129504; Epistemic Evaluator (R1&ndash;R5)<div class="asub">Pattern check &#8594; Justification score &#8594; Status</div></div>
+          <div class="aarrow">&#9660;</div>
+          <div class="abox box-llm">&#129302; LLM Reasoning (Ollama)<div class="asub">phi3:mini / mistral:7b &middot; temperature = 0</div></div>
+          <div class="aarrow">&#9660;</div>
+          <div class="abox box-verdict">&#128203; Verdict + Full Epistemic Trace<div class="asub">VALID &middot; UNJUSTIFIED &middot; SUSPENDED &middot; INVALID + R1&ndash;R5 flags</div></div>
+        </div>
+
+        <div class="sec" style="margin-top:0.22cm;">Pram&#257;&#7751;a Authority Weights</div>
+        <p class="sm" style="margin-bottom:0.12cm;">Derived from Ny&#257;ya S&#363;tra ordering of epistemic priority:</p>
+
+        <div class="pbar-row">
+          <div class="pbar-label">Perception<span class="pbar-sa">&#x092A;&#x094D;&#x0930;&#x0924;&#x094D;&#x092F;&#x0915;&#x094D;&#x0937;</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:100%;background:#1db954;"></div></div>
+          <div class="pbar-val">1.00</div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label">Inference<span class="pbar-sa">&#x0905;&#x0928;&#x0941;&#x092E;&#x093E;&#x0928;</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:80%;background:#2980b9;"></div></div>
+          <div class="pbar-val">0.80</div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label">Testimony<span class="pbar-sa">&#x0936;&#x092C;&#x094D;&#x0926;</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:60%;background:#8e44ad;"></div></div>
+          <div class="pbar-val">0.60</div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label">Comparison<span class="pbar-sa">&#x0909;&#x092A;&#x092E;&#x093E;&#x0928;</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:40%;background:#e67e22;"></div></div>
+          <div class="pbar-val">0.40</div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label">Postulation<span class="pbar-sa">&#x0905;&#x0930;&#x094D;&#x0925;&#x093E;&#x092A;&#x0924;&#x094D;&#x0924;&#x093F;</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:20%;background:#e74c3c;"></div></div>
+          <div class="pbar-val">0.20</div>
+        </div>
+
+        <div class="sec" style="margin-top:0.22cm;">Key Design Decisions</div>
+        <table>
+          <tr><th>Parameter</th><th>Value</th><th>Rationale</th></tr>
+          <tr><td>Acceptance threshold</td><td><strong>0.65</strong></td><td>Avoids false UNJUSTIFIED on multi-pram&#257;&#7751;a fusion</td></tr>
+          <tr><td>Suspension band</td><td><strong>0.05</strong></td><td>Maps to <em>sa&#7747;&#347;aya</em> &mdash; genuine doubt zone</td></tr>
+          <tr><td>LLM temperature</td><td><strong>0.0</strong></td><td>Deterministic &mdash; same question, same verdict</td></tr>
+          <tr><td>RRF constant k</td><td><strong>60</strong></td><td>Standard reciprocal rank fusion</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── COL 3: RESULTS + DISCUSSION + CONCLUSION + REFS ─── -->
+    <div class="col">
+      <div class="card">
+        <div class="sec">3 &middot; Results</div>
+
+        <p class="sm"><strong>Test Suite &mdash; 120 / 120 Passing</strong></p>
+        <div class="test-bar"><div class="test-fill" style="width:100%;">120 / 120 &#10003;</div></div>
+        <div class="tag-row">
+          <span class="tag">test_engine</span>
+          <span class="tag">test_epistemic_reasoning</span>
+          <span class="tag">test_qa_solver</span>
+          <span class="tag">test_web_api</span>
+          <span class="tag">test_llm_mock</span>
+        </div>
+
+        <table>
+          <tr><th>Scenario</th><th>Expected</th><th>Got</th><th></th></tr>
+          <tr><td>Smoke-fire (high confidence)</td><td>VALID</td><td>VALID</td><td class="tick">&#10003;</td></tr>
+          <tr><td>Missing pram&#257;&#7751;a source</td><td>UNJUSTIFIED</td><td>UNJUSTIFIED</td><td class="tick">&#10003;</td></tr>
+          <tr><td>Score 0.68 (near threshold)</td><td>SUSPENDED</td><td>SUSPENDED</td><td class="tick">&#10003;</td></tr>
+          <tr><td>Affirming the consequent</td><td>INVALID</td><td>INVALID</td><td class="tick">&#10003;</td></tr>
+          <tr><td>Defeated evidence (b&#257;dhita)</td><td>SUSPENDED</td><td>SUSPENDED</td><td class="tick">&#10003;</td></tr>
+        </table>
+
+        <p class="sm" style="margin-bottom:0.1cm;"><strong>Verdict Distribution (50 questions)</strong></p>
+        <div class="donut-wrap">
+          <div class="donut"></div>
+          <div class="donut-legend">
+            <div class="dl"><span class="dlc" style="background:var(--valid);"></span> VALID &mdash; 68%</div>
+            <div class="dl"><span class="dlc" style="background:var(--suspended);"></span> SUSPENDED &mdash; 18%</div>
+            <div class="dl"><span class="dlc" style="background:var(--unjustified);"></span> UNJUSTIFIED &mdash; 10%</div>
+            <div class="dl"><span class="dlc" style="background:var(--invalid);"></span> INVALID &mdash; 4%</div>
+          </div>
+        </div>
+
+        <div class="sec">4 &middot; Discussion</div>
+        <p class="sm">Ny&#257;ya&rsquo;s three-gate requirement (<em>vy&#257;pti</em> holds + <em>hetu</em> grounded + no <em>b&#257;dhita</em>)
+        maps precisely onto R4 (pattern), R2 (justification), and the SUSPENDED status.</p>
+        <div class="cmp-row">
+          <div class="cmp-cell"><b>Ny&#257;ya:</b> b&#257;dhita <span class="sa">&#x092C;&#x093E;&#x0927;&#x093F;&#x0924;</span></div>
+          <div class="cmp-cell"><b>Western:</b> Undercutting defeater (Pollock 1987)</div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-cell"><b>Ny&#257;ya:</b> sa&#7747;&#347;aya <span class="sa">&#x0938;&#x0902;&#x0936;&#x092F;</span></div>
+          <div class="cmp-cell"><b>Western:</b> Epistemic suspension (Pyrrho)</div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-cell"><b>Ny&#257;ya:</b> pram&#257;&#7751;a bala</div>
+          <div class="cmp-cell"><b>Western:</b> Source reliability (Coady 1992)</div>
+        </div>
+
+        <div class="sec" style="margin-top:0.18cm;">5 &middot; Conclusion</div>
+        <ul>
+          <li>First AI system implementing full Ny&#257;ya <em>anum&#257;na</em> with 4-verdict classification</li>
+          <li>Pram&#257;&#7751;a authority weights enforce epistemic hierarchy computationally</li>
+          <li>Rule bank provides deterministic fallback when LLM confidence is low</li>
+          <li>Machine-readable traces enable downstream audit and explainability</li>
+        </ul>
+
+        <div class="sec" style="margin-top:0.18cm;">References</div>
+        <p class="xs" style="line-height:1.65;">
+          [1] Ny&#257;ya S&#363;tra of Gautama (c.&nbsp;200&nbsp;BCE), V&#257;tsy&#257;yana&rsquo;s Bh&#257;&#7779;ya<br>
+          [2] Matilal (1985). <em>Logic, Language and Reality.</em> Motilal Banarsidass<br>
+          [3] Ganeri (2001). <em>Philosophy in Classical India.</em> Routledge<br>
+          [4] Pollock (1987). Defeasible Reasoning. <em>Cognitive Science</em> 11(4)<br>
+          [5] Lewis et al. (2020). RAG for Knowledge-Intensive NLP. <em>NeurIPS</em><br>
+          [6] Coady (1992). <em>Testimony.</em> Oxford University Press
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    <span><strong>Pramana Inference Engine</strong> &middot; Unriddling Inference 2026 &middot; IIT Delhi</span>
+    <span class="footer-sa">&#x092A;&#x094D;&#x0930;&#x092E;&#x093E;&#x0923; &middot; &#x0905;&#x0928;&#x0941;&#x092E;&#x093E;&#x0928; &middot; &#x0928;&#x094D;&#x092F;&#x093E;&#x092F;</span>
+    <span>Flask &middot; FAISS &middot; Ollama &middot; e5-small-v2 &middot; 120/120 tests &#10003;</span>
+  </div>
+
+</div><!-- /poster-root -->
+
+<script>
+// Scale poster to fit browser viewport (print ignores this via @media print)
+function scalePoster() {
+  var poster = document.getElementById('poster');
+  var PX_PER_CM = 37.7952;
+  var posterW = 84.1 * PX_PER_CM;
+  var posterH = 118.9 * PX_PER_CM;
+  var vw = window.innerWidth - 32;
+  var vh = window.innerHeight - 48;
+  var scale = Math.min(vw / posterW, vh / posterH, 1);
+  poster.style.transform = 'scale(' + scale + ')';
+  // Adjust body height so page doesn't clip the scaled poster
+  document.body.style.height = (posterH * scale + 60) + 'px';
+}
+scalePoster();
+window.addEventListener('resize', scalePoster);
+</script>
+</body>
+</html>

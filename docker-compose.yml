@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  # Ollama server — runs Mistral 7B
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pramana_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  # One-shot service: pulls mistral:7b after Ollama is healthy
+  # Idempotent — skips download if model is already in the volume
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: pramana_ollama_pull
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["ollama", "pull", "mistral:7b"]
+    restart: "no"
+
+  # Pramana Engine Flask app
+  pramana:
+    build: .
+    container_name: pramana_app
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - vector_store:/app/vector_store_cache
+    env_file:
+      - .env
+    environment:
+      # Override Ollama host to use the Docker service name
+      - OLLAMA_HOST=http://ollama:11434
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  vector_store:

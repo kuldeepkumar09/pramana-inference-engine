@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Dashboard - Pramana Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f1e6;
+  --paper: #fffdf8;
+  --ink: #24170f;
+  --muted: #6c5d4f;
+  --accent: #b75014;
+  --accent-2: #145d66;
+  --focus: #d88d2a;
+  --border: #d9c7a8;
+  --ok: #2b7a4b;
+  --warn: #9b6d16;
+  --bad: #8e2e2e;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(183,80,20,.14), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(20,93,102,.14), transparent 32%),
+    repeating-linear-gradient(45deg, rgba(160,120,70,.05) 0 2px, transparent 2px 18px),
+    linear-gradient(160deg, #fbf5eb, var(--bg));
+}
+.container {
+  width: min(1160px, 95vw);
+  margin: 18px auto 34px;
+  display: grid;
+  gap: 14px;
+}
+.hero {
+  background: linear-gradient(135deg, #fffef9 0%, #f3e8d1 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 16px 30px rgba(40, 28, 14, 0.10);
+}
+.kicker {
+  margin: 0;
+  font: 700 11px 'JetBrains Mono', monospace;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+h1 {
+  margin: 5px 0 7px;
+  font: 700 clamp(24px, 3.3vw, 34px) 'Cinzel', serif;
+  color: var(--accent);
+}
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.nav {
+  margin-top: 10px;
+  font: 600 12px 'JetBrains Mono', monospace;
+}
+.nav a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.nav a:hover { text-decoration: underline; }
+
+.guide {
+  margin-top: 12px;
+  border: 1px solid #e8d4b2;
+  border-radius: 10px;
+  padding: 10px;
+  background: linear-gradient(135deg, #fff8ea, #fffdf8);
+}
+
+.guide h3 {
+  margin: 0 0 6px;
+  font: 700 13px 'Cinzel', serif;
+  color: #7b2949;
+}
+
+.guide ol {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+  font-size: 12px;
+  color: #4f4134;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 14px;
+}
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 10px 22px rgba(40, 28, 14, 0.09);
+}
+.card h2 {
+  margin: 0 0 10px;
+  font: 700 12px 'Cinzel', serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.stat-list {
+  display: grid;
+  gap: 8px;
+}
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e8d7bd;
+  border-radius: 9px;
+  padding: 9px 10px;
+  background: #fffaf0;
+}
+.stat .label {
+  color: var(--muted);
+  font: 400 12px 'JetBrains Mono', monospace;
+}
+.stat .value {
+  font: 700 12px 'JetBrains Mono', monospace;
+}
+.value.ok { color: var(--ok); }
+.value.warn { color: var(--warn); }
+.value.bad { color: var(--bad); }
+.field {
+  margin-bottom: 10px;
+}
+label {
+  display: block;
+  margin-bottom: 4px;
+  font: 700 11px 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+textarea, input, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font: 500 13px 'JetBrains Mono', monospace;
+  color: var(--ink);
+  background: #fffefb;
+}
+textarea { min-height: 88px; }
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(216, 141, 42, 0.18);
+}
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+button {
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  padding: 10px 12px;
+  font: 700 12px 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.btn-primary { background: linear-gradient(120deg, #c85a14, #8f2f15); color: #fff; }
+.btn-secondary { background: linear-gradient(120deg, #18717c, #145861); color: #fff; }
+.btn-light { background: #efe6d7; color: var(--ink); }
+.btn-primary:hover, .btn-secondary:hover, .btn-light:hover { filter: brightness(1.06); }
+.output {
+  display: grid;
+  gap: 10px;
+}
+.answer {
+  border-left: 5px solid var(--accent-2);
+  background: #f4fbfc;
+  padding: 10px;
+  border-radius: 8px;
+}
+.answer h3 {
+  margin: 0 0 6px;
+  font: 700 12px 'Cinzel', serif;
+  color: var(--accent-2);
+}
+.meta {
+  font: 400 12px 'JetBrains Mono', monospace;
+  color: var(--muted);
+}
+.chunk {
+  border: 1px solid #eadfce;
+  border-radius: 9px;
+  padding: 10px;
+  background: #fffaf0;
+}
+.chunk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font: 700 12px 'JetBrains Mono', monospace;
+}
+.chunk-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.hidden { display: none; }
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <section class="hero">
+    <p class="kicker">Pramana Engine</p>
+    <h1>RAG Operations Dashboard</h1>
+    <p class="subtitle">Live status, semantic retrieval, and LLM answer tracing in one guided control room.</p>
+    <div class="nav">
+      <a href="/">Unified Workspace</a> | <a href="/app">Main App</a> | <a href="/judge">Judge</a> | <a href="/compare">Comparator</a>
+    </div>
+    <div class="guide">
+      <h3>How To Use</h3>
+      <ol>
+        <li>Check system health on the left panel.</li>
+        <li>Ask a focused question in the workbench.</li>
+        <li>Use Search Only for evidence or Generate Answer for full output.</li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="grid">
+    <aside class="card">
+      <h2>System Health</h2>
+      <div class="stat-list">
+        <div class="stat"><span class="label">Pipeline</span><span id="statPipeline" class="value">...</span></div>
+        <div class="stat"><span class="label">Vector Store</span><span id="statVector" class="value">...</span></div>
+        <div class="stat"><span class="label">LLM</span><span id="statLlm" class="value">...</span></div>
+        <div class="stat"><span class="label">Active Model</span><span id="statModel" class="value">...</span></div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-light" onclick="refreshStatus()">Refresh Status</button>
+      </div>
+    </aside>
+
+    <main class="card">
+      <h2>RAG Query Workbench</h2>
+      <div class="field">
+        <label for="question">Question</label>
+        <textarea id="question" placeholder="Example: Explain why vyapti is necessary for anumana."></textarea>
+      </div>
+      <div class="controls">
+        <div class="field">
+          <label for="k">Top K</label>
+          <input id="k" type="number" min="1" max="20" value="5">
+        </div>
+        <div class="field">
+          <label for="chain">Reasoning</label>
+          <select id="chain">
+            <option value="false">Direct</option>
+            <option value="true">Chain of Thought</option>
+          </select>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn-secondary" onclick="runSearch()">Search Only</button>
+        <button class="btn-primary" onclick="runAnswer()">Generate Answer</button>
+      </div>
+      <p id="statusLine" class="mono">Ready. Enter a question to begin.</p>
+
+      <section id="answerPanel" class="output hidden">
+        <div class="answer">
+          <h3>Final Answer</h3>
+          <p id="answerText"></p>
+          <div id="answerMeta" class="meta"></div>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px;font:700 12px 'Space Mono',monospace;color:var(--accent)">Retrieved Chunks</h3>
+          <div id="chunks"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+function setStatusClass(el, good) {
+  el.classList.remove('ok', 'warn', 'bad');
+  if (good === true) el.classList.add('ok');
+  else if (good === false) el.classList.add('bad');
+  else el.classList.add('warn');
+}
+
+async function refreshStatus() {
+  const pipelineEl = document.getElementById('statPipeline');
+  const vectorEl = document.getElementById('statVector');
+  const llmEl = document.getElementById('statLlm');
+  const modelEl = document.getElementById('statModel');
+
+  try {
+    const response = await fetch('/api/rag/status');
+    const data = await response.json();
+
+    pipelineEl.textContent = data.pipeline_initialized ? 'Ready' : 'Pending';
+    setStatusClass(pipelineEl, data.pipeline_initialized);
+
+    vectorEl.textContent = String(data.vector_store_size || 0);
+    setStatusClass(vectorEl, (data.vector_store_size || 0) > 0);
+
+    const llmHealthy = Boolean(data.llm_available && data.llm_healthy);
+    llmEl.textContent = llmHealthy ? 'Healthy' : 'Unavailable';
+    setStatusClass(llmEl, llmHealthy);
+
+    modelEl.textContent = data.llm_model || 'Unknown';
+    setStatusClass(modelEl, null);
+  } catch (err) {
+    pipelineEl.textContent = 'Error';
+    vectorEl.textContent = '-';
+    llmEl.textContent = 'Error';
+    modelEl.textContent = '-';
+    setStatusClass(pipelineEl, false);
+    setStatusClass(vectorEl, false);
+    setStatusClass(llmEl, false);
+  }
+}
+
+function renderChunks(chunks) {
+  const root = document.getElementById('chunks');
+  root.innerHTML = '';
+  if (!Array.isArray(chunks) || chunks.length === 0) {
+    root.innerHTML = '<p class="mono">No chunks returned.</p>';
+    return;
+  }
+
+  for (const item of chunks) {
+    const wrapper = document.createElement('article');
+    wrapper.className = 'chunk';
+
+    const head = document.createElement('div');
+    head.className = 'chunk-head';
+
+    const left = document.createElement('span');
+    left.textContent = item.id || 'unknown';
+
+    const right = document.createElement('span');
+    const score = Number(item.score || item.fused_score || 0).toFixed(3);
+    right.textContent = 'score ' + score;
+    right.className = 'mono';
+
+    head.appendChild(left);
+    head.appendChild(right);
+
+    const text = document.createElement('p');
+    text.className = 'chunk-text';
+    text.textContent = item.text || item.excerpt || '';
+
+    const source = document.createElement('p');
+    source.className = 'mono';
+    source.textContent = 'source: ' + (item.source || 'unknown');
+
+    wrapper.appendChild(head);
+    wrapper.appendChild(text);
+    wrapper.appendChild(source);
+    root.appendChild(wrapper);
+  }
+}
+
+function readQuestion() {
+  return document.getElementById('question').value.trim();
+}
+
+function showBusy(text) {
+  document.getElementById('statusLine').textContent = text;
+}
+
+function showResult(answer, meta, chunks) {
+  document.getElementById('answerText').textContent = answer || '';
+  document.getElementById('answerMeta').textContent = meta || '';
+  renderChunks(chunks || []);
+  document.getElementById('answerPanel').classList.remove('hidden');
+}
+
+async function runSearch() {
+  const question = readQuestion();
+  if (!question) {
+    showBusy('Please enter a question first.');
+    return;
+  }
+
+  showBusy('Running retrieval...');
+  try {
+    const response = await fetch('/api/rag/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: question, k: Number(document.getElementById('k').value || 5)})
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      showBusy(data.error || 'Search failed.');
+      return;
+    }
+
+    const count = Number(data.count || 0);
+    showResult('Retrieval completed.', 'chunks: ' + count, data.results || []);
+    showBusy('Retrieval complete.');
+  } catch (err) {
+    showBusy('Search failed: ' + err);
+  }
+}
+
+async function runAnswer() {
+  const question = readQuestion();
+  if (!question) {
+    showBusy('Please enter a question first.');
+    return;
+  }
+
+  showBusy('Generating answer. First run may take longer while model warms up...');
+  try {
+    const response = await fetch('/api/rag/answer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        question: question,
+        useLLM: true,
+        useReasoningChain: document.getElementById('chain').value === 'true'
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      showBusy(data.error || 'Answer generation failed.');
+      return;
+    }
+
+    const conf = Number(data.confidence || 0).toFixed(3);
+    const status = data.epistemic_status || 'unknown';
+    const source = data.answer_source || 'unknown';
+    const meta = 'confidence: ' + conf + ' | status: ' + status + ' | source: ' + source;
+    showResult(data.answer || '', meta, data.rag_chunks || []);
+    showBusy('Answer generated.');
+  } catch (err) {
+    showBusy('Answer generation failed: ' + err);
+  }
+}
+
+refreshStatus();
+</script>
+</body>
+</html>

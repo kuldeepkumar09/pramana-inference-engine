@@ -1,0 +1,49 @@
+{
+  "mapping": {
+    "citations": [
+      "EXT:04_chapter 1:205",
+      "EXT:04_chapter 1:209"
+    ],
+    "combineAllPramanas": false,
+    "hetu": "direct cognition depends on immediate sense-object contact",
+    "paksha": "the asked knowledge claim",
+    "pramanaTypes": [
+      "Pratyaksha",
+      "Anumana"
+    ],
+    "sadhya": "Pratyaksha is the best-supported answer",
+    "udaharana": "seeing a pot through eye-object contact is pratyaksha"
+  },
+  "question_result": {
+    "answer_key": null,
+    "answer_pramana": "Pratyaksha",
+    "answer_text": "Pratyaksha",
+    "confidence": 0.7425,
+    "epistemic_status": "valid",
+    "mode": "classification",
+    "option_scores": [
+      "@{canonical_pramana=perception; citations=System.Object[]; display_pramana=Pratyaksha; score=6}",
+      "@{canonical_pramana=inference; citations=System.Object[]; display_pramana=Anumana; score=6}",
+      "@{canonical_pramana=testimony; citations=System.Object[]; display_pramana=Shabda; score=6}",
+      "@{canonical_pramana=comparison; citations=System.Object[]; display_pramana=Upamana; score=6}",
+      "@{canonical_pramana=postulation; citations=System.Object[]; display_pramana=Arthapatti; score=6}",
+      "@{canonical_pramana=aprama; citations=System.Object[]; display_pramana=Aprama; score=3}"
+    ],
+    "question": "What is pramana?",
+    "trace": {
+      "abstained": false,
+      "neural_parser": "@{mode=classification_parser; selected_answer_text=Pratyaksha}",
+      "symbolic_verifier": "@{verifier_pass=True; violated_constraints=System.Object[]}",
+      "type": "neuro_symbolic_pramana_classification",
+      "winning_row": "@{canonical_pramana=perception; citations=System.Object[]; display_pramana=Pratyaksha; score=6}"
+    },
+    "verifier": {
+      "belief_revision": "@{applied=False; final_status=valid; preliminary_status=valid; reason=none}",
+      "confidence_decomposition": "@{contradiction_penalty=-0.35; final_confidence=0.7425; formula=retrieval_support + rule_consistency + contradiction_penalty + source_authority; graph_alignment=1; retrieval_support=0.75; rule_consistency=0.85; source_authority=0.72}",
+      "constraints": "@{has_retrieval_support=True; no_strong_contradiction=True; non_empty_answer=True; rule_satisfiable=True}",
+      "propositions": "  ",
+      "verifier_pass": true,
+      "violated_constraints": ""
+    }
+  }
+}

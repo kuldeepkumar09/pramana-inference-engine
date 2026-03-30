@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pramana Engine v2 - RAG + Multi-Model Inference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0c0906;
+  --parch: #f6f1e9;
+  --parch2: #ede7da;
+  --saffron: #d4750e;
+  --gold: #c8973a;
+  --ash: #7a7068;
+  --smoke: #1e1a16;
+  --border: #c4b49a;
+  --border-lt: #ddd4c0;
+  --card: #faf6ef;
+  --valid: #1a6040;
+  --valid-bg: #eaf5ee;
+  --unjust: #7a5c0e;
+  --unjust-bg: #fdf6e3;
+  --susp: #3a2a80;
+  --susp-bg: #eeeef8;
+  --rej: #8a1a1a;
+  --rej-bg: #fdf0f0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--parch);color:var(--ink);font-family:'Crimson Pro',Georgia,serif;font-size:17px;line-height:1.7;min-height:100vh}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px 100px}
+header{text-align:center;padding:48px 0 36px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.header-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--saffron);text-transform:uppercase;margin-bottom:12px}
+h1{font-family:'Cinzel',serif;font-size:38px;font-weight:700;line-height:1.15;margin-bottom:8px}
+h1 em{color:var(--saffron);font-style:normal}
+.tagline{font-style:italic;color:var(--ash);font-size:17px;font-weight:300;margin-bottom:16px}
+.version-badge{display:inline-block;background:var(--smoke);color:#f0e0b8;font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 10px;border-radius:2px;letter-spacing:1px}
+.pipeline-viz{background:var(--card);border:1px solid var(--border);border-radius:2px;padding:20px 24px;margin-bottom:32px;overflow-x:auto}
+.pipeline-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--ash);text-transform:uppercase;margin-bottom:16px}
+.pipeline-steps{display:flex;align-items:center;gap:0;min-width:600px}
+.pipe-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.pipe-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid #bbb}
+.pipe-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;text-align:center;line-height:1.3}
+.pipe-sub{font-size:11px;color:var(--ash);font-style:italic;text-align:center;line-height:1.2}
+.pipe-arrow{flex:0 0 24px;color:var(--border);font-size:16px;text-align:center;margin-bottom:20px}
+.main-layout{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
+.inp-panel{background:var(--card);border:1px solid var(--border);padding:24px;position:sticky;top:20px}
+.section-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--saffron);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border-lt)}
+.fg{margin-bottom:14px}
+.sk-label{display:block;font-style:italic;color:#b5620b;font-size:13px;margin-bottom:2px}
+label.eng-label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-bottom:5px}
+input[type=text],textarea,select{width:100%;background:var(--parch);border:1px solid var(--border);padding:9px 11px;font-family:'Crimson Pro',serif;font-size:16px;color:var(--ink);outline:none;resize:vertical;border-radius:1px}
+textarea{min-height:72px}
+.pramana-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pcheck{display:flex;align-items:center;gap:7px;font-size:14px;background:#f2ecdf;border:1px solid #d5c4aa;padding:6px 8px;border-radius:6px}
+.pcheck input{width:auto}
+.hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a7068;letter-spacing:.5px;margin-top:4px}
+.map-row{display:flex;gap:8px;align-items:center}
+.map-row input{flex:1}
+.map-btn{width:auto;background:#6a4a20;color:#fff;border:none;padding:9px 12px;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5px}
+.map-status{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a7068;min-height:14px}
+.answer-panel{margin-top:10px;background:#f2ecdf;border:1px solid #d5c4aa;border-radius:6px;padding:10px 12px;display:none}
+.answer-panel.show{display:block}
+.answer-head{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#7a7068;margin-bottom:4px}
+.answer-main{font-family:'Cinzel',serif;font-size:16px;color:#3a2a10;margin-bottom:4px}
+.answer-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a7068;line-height:1.4}
+.verifier-panel{margin-top:10px;background:#f5efe4;border:1px solid #ccb892;border-radius:6px;padding:10px 12px;display:none}
+.verifier-panel.show{display:block}
+.verifier-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.verifier-item{background:#fff9ef;border:1px solid #e1cfaa;border-radius:4px;padding:6px 8px}
+.verifier-k{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#7a7068}
+.verifier-v{font-family:'Crimson Pro',serif;font-size:14px;color:#2f2416;line-height:1.35}
+.verifier-list{margin:4px 0 0 16px;font-size:13px;line-height:1.4;color:#2f2416}
+.conf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mode-btn{padding:8px 6px;background:var(--parch);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ash);cursor:pointer;text-align:center;border-radius:1px}
+.mode-btn.active{background:var(--saffron);border-color:var(--saffron);color:white}
+.presets-wrap{margin-bottom:18px}
+.presets-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-bottom:8px}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pset{background:var(--parch);border:1px solid var(--border-lt);padding:6px 8px;font-family:'Crimson Pro',serif;font-size:12px;color:var(--ash);cursor:pointer;text-align:left;line-height:1.3;border-radius:1px}
+.pset-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);display:block;margin-bottom:1px}
+.run-btn{width:100%;background:var(--smoke);color:var(--parch);border:none;padding:13px 20px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:3px;cursor:pointer;margin-top:8px;border-radius:1px}
+.divider{height:1px;background:var(--border-lt);margin:16px 0}
+.out-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:520px;border:1px dashed var(--border);padding:60px 40px;text-align:center}
+.out-empty .om-sym{font-size:64px;opacity:.12;line-height:1;margin-bottom:16px}
+.out-empty p{font-style:italic;font-size:18px;font-weight:300;color:var(--ash)}
+.out-empty small{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--border);margin-top:6px}
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:520px;gap:0}
+.chakra-outer{width:56px;height:56px;border:1.5px solid var(--border-lt);border-top-color:var(--saffron);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stage-log{width:100%;max-width:400px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.stage-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-lt);opacity:.4;transition:opacity .3s}
+.stage-item.active{opacity:1}
+.stage-item.done{opacity:.7}
+.stage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:#c8973a}
+.result-card{background:var(--card);border:1px solid var(--border)}
+.vbanner{padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-bottom:1px solid var(--border)}
+.vbanner.VALID{background:linear-gradient(135deg,var(--valid-bg),var(--card));border-left:4px solid var(--valid)}
+.vbanner.UNJUSTIFIED{background:linear-gradient(135deg,var(--unjust-bg),var(--card));border-left:4px solid var(--unjust)}
+.vbanner.SUSPENDED{background:linear-gradient(135deg,var(--susp-bg),var(--card));border-left:4px solid var(--susp)}
+.vbanner.REJECTED{background:linear-gradient(135deg,var(--rej-bg),var(--card));border-left:4px solid var(--rej)}
+.verdict-word{font-family:'Cinzel',serif;font-size:26px;font-weight:700;letter-spacing:2px}
+.secs{padding:0 28px 28px}
+.sec{border-bottom:1px solid var(--border-lt);padding:20px 0}
+.sec:last-child{border-bottom:none}
+.sec-head{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--saffron);margin-bottom:10px}
+.json-out{background:var(--smoke);color:#d4c9a8;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;overflow-x:auto;border-radius:1px}
+.err-state{padding:20px 28px;color:var(--rej);font-style:italic;background:var(--rej-bg);border:1px solid #e8c8c8}
+@media(max-width:860px){.main-layout{grid-template-columns:1fr}.inp-panel{position:static}.preset-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="header-eyebrow">pramana · nyaya · anumana</div>
+  <h1>Pramana <em>Engine</em> v2</h1>
+  <p class="tagline">Nyaya inference with deterministic epistemic reasoning</p>
+  <span class="version-badge">RAG + EMBEDDING + GATE + SCHOLAR + SYNTHESIS</span>
+  <p style="margin-top:12px">
+    <a href="/" style="color:#b5620b;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px">Open Unified Workspace</a>
+    |
+    <a href="/judge" style="color:#b5620b;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px">Open Judge Dashboard</a>
+    |
+    <a href="/dashboard" style="color:#b5620b;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px">Open RAG Dashboard</a>
+    |
+    <a href="/compare" style="color:#b5620b;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px">Open Comparator</a>
+  </p>
+</header>
+
+<div class="pipeline-viz">
+  <div class="pipeline-title">Five-Stage Inference Pipeline</div>
+  <div class="pipeline-steps">
+    <div class="pipe-step"><div class="pipe-icon">1</div><div class="pipe-label">RAG Retrieval</div><div class="pipe-sub">KB chunks</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-icon">2</div><div class="pipe-label">Embedding</div><div class="pipe-sub">Similarity</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-icon">3</div><div class="pipe-label">Epistemic Gate</div><div class="pipe-sub">Deterministic</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-icon">4</div><div class="pipe-label">Scholar</div><div class="pipe-sub">Backend prose</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-icon">5</div><div class="pipe-label">Synthesis</div><div class="pipe-sub">Trace JSON</div></div>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="inp-panel">
+    <div class="section-title">Inference Input</div>
+    <div class="presets-wrap">
+      <div class="presets-label">Five Unit Tests</div>
+      <div class="preset-grid" id="presetGrid"></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="fg">
+      <span class="sk-label">Single-sentence inquiry</span>
+      <label class="eng-label">Natural-Language Question</label>
+      <div class="map-row">
+        <input type="text" id="questionInput" placeholder="e.g., Is there fire on the distant hill?">
+        <button class="map-btn" type="button" onclick="autoMapQuestion()">AUTO MAP</button>
+      </div>
+      <div class="map-status" id="mapStatus">Enter a one-line question, then click AUTO MAP.</div>
+      <div class="answer-panel" id="finalAnswerPanel">
+        <div class="answer-head">Final Answer</div>
+        <div class="answer-main" id="finalAnswerMain">Not solved yet</div>
+        <div class="answer-meta" id="finalAnswerMeta">Run AUTO MAP to see mode, confidence, and citations.</div>
+      </div>
+      <div class="verifier-panel" id="verifierPanel">
+        <div class="answer-head">Verifier Panel</div>
+        <div class="verifier-grid">
+          <div class="verifier-item">
+            <div class="verifier-k">Verifier Pass</div>
+            <div class="verifier-v" id="verifierPass">n/a</div>
+          </div>
+          <div class="verifier-item">
+            <div class="verifier-k">Belief Revision</div>
+            <div class="verifier-v" id="beliefRevision">n/a</div>
+          </div>
+          <div class="verifier-item">
+            <div class="verifier-k">Violated Constraints</div>
+            <div class="verifier-v" id="violatedConstraints">n/a</div>
+          </div>
+          <div class="verifier-item">
+            <div class="verifier-k">Revision Reason</div>
+            <div class="verifier-v" id="revisionReason">n/a</div>
+          </div>
+        </div>
+        <div class="verifier-item" style="margin-top:8px">
+          <div class="verifier-k">Confidence Decomposition</div>
+          <div class="verifier-v" id="confidenceDecomp">n/a</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg"><span class="sk-label">Paksa - Subject of inquiry</span><label class="eng-label">Subject (paksa)</label><input type="text" id="paksha" placeholder="e.g., the distant hill"></div>
+    <div class="fg"><span class="sk-label">Sadhya - Property to be proved</span><label class="eng-label">Predicate (sadhya)</label><input type="text" id="sadhya" placeholder="e.g., fire is present"></div>
+    <div class="fg"><span class="sk-label">Hetu - The logical mark</span><label class="eng-label">Reason (hetu)</label><input type="text" id="hetu" placeholder="e.g., smoke is visible"></div>
+    <div class="fg"><span class="sk-label">Udaharana - Supporting example</span><label class="eng-label">Example</label><input type="text" id="udaharana" placeholder="e.g., kitchen hearth"></div>
+    <div class="fg"><span class="sk-label">Viruddha - Conflicting evidence</span><label class="eng-label">Conflict (optional)</label><textarea id="conflict" placeholder="Any counter-evidence..."></textarea></div>
+
+    <div class="fg">
+      <label class="eng-label">Pramana Fusion</label>
+      <div class="pramana-grid">
+        <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Pratyaksha">Pratyaksha</label>
+        <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Anumana" checked>Anumana</label>
+        <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Shabda">Shabda</label>
+        <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Upamana">Upamana</label>
+        <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Arthapatti">Arthapatti</label>
+      </div>
+      <label class="pcheck" style="margin-top:8px"><input type="checkbox" id="combineAllPramanas" checked>Combine all pramanas into one fused logical check</label>
+      <div class="hint">When enabled, the engine uses source-weighted calibration across all pramana channels.</div>
+    </div>
+
+    <div class="conf-row">
+      <div class="fg"><label class="eng-label">Hetu Confidence</label><input type="text" id="hetuConf" placeholder="0.85"></div>
+      <div class="fg"><label class="eng-label">Vyapti Strength</label><input type="text" id="vyaptiStr" placeholder="0.90"></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="fg">
+      <label class="eng-label">Reasoning Mode</label>
+      <div class="mode-row">
+        <button class="mode-btn active" id="modeStd" onclick="setMode('standard')">Standard</button>
+        <button class="mode-btn" id="modeDeep" onclick="setMode('deep')">Deep Viveka</button>
+        <button class="mode-btn" id="modeFast" onclick="setMode('fast')">Fast Gate</button>
+        <button class="mode-btn" id="modeDebate" onclick="setMode('debate')">Debate Mode</button>
+      </div>
+    </div>
+
+    <button class="run-btn" id="runBtn" onclick="runInference()">INVOKE PRAMANA ENGINE</button>
+
+    <div class="divider"></div>
+    <div class="fg">
+      <label class="eng-label">Upload Dataset JSON</label>
+      <input type="file" id="uploadFile" accept="application/json">
+      <button class="run-btn" style="margin-top:10px" onclick="runUploadBatch()">RUN BATCH FROM FILE</button>
+    </div>
+  </div>
+
+  <div id="outputPanel">
+    <div class="out-empty">
+      <div class="om-sym">ॐ</div>
+      <p>Awaiting epistemic inquiry</p>
+      <small>Select a preset or enter custom inference data above</small>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const THRESHOLD = 0.65;
+let currentMode = 'standard';
+let inferenceHistory = [];
+let activeHistIdx = -1;
+
+const PRESETS = [
+  { label:'Smoke -> Fire', num:'T-01', paksha:'the distant hill', sadhya:'fire is present', hetu:'smoke is visible on the summit', udaharana:'a kitchen hearth where smoke and fire always coexist', conflict:'', pramanaType:'Anumana', hetuConf:0.95, vyaptiStr:0.92 },
+  { label:'Clouds -> Rain', num:'T-02', paksha:'the monsoon sky', sadhya:'rain will occur', hetu:'dark cumulonimbus clouds forming with falling pressure', udaharana:'coastal storms', conflict:'weather report shows a blocking high-pressure system', pramanaType:'Anumana', hetuConf:0.78, vyaptiStr:0.70 },
+  { label:'Soul -> Immortal', num:'T-03', paksha:'the individual soul', sadhya:'the soul is immortal', hetu:'scriptural testimony asserts it', udaharana:'Gita 2.20', conflict:'materialist claim says consciousness ceases with bodily death', pramanaType:'Shabda', hetuConf:0.55, vyaptiStr:0.50 },
+  { label:'Sound -> Impermanent', num:'T-04', paksha:'sound', sadhya:'sound is impermanent', hetu:'sound is produced by effort', udaharana:'all produced pots are impermanent', conflict:'', pramanaType:'Anumana', hetuConf:0.88, vyaptiStr:0.94 },
+  { label:'Weak Claim', num:'T-05', paksha:'this manuscript', sadhya:'manuscript dates to 3rd century CE', hetu:'undocumented oral tradition', udaharana:'no reliable comparable case', conflict:'', pramanaType:'Arthapatti', hetuConf:0.28, vyaptiStr:0.30 },
+];
+
+function renderPresets() {
+  document.getElementById('presetGrid').innerHTML = PRESETS.map((p,i) =>
+    `<button class="pset" onclick="loadPreset(${i})"><span class="pset-num">${p.num}</span>${p.label}</button>`
+  ).join('');
+}
+
+function loadPreset(i) {
+  const p = PRESETS[i];
+  document.getElementById('questionInput').value = `Is ${p.sadhya} in ${p.paksha}?`;
+  ['paksha','sadhya','hetu','udaharana','conflict'].forEach(k => document.getElementById(k).value = p[k]);
+  const checks = document.querySelectorAll('input[name="pramanaTypes"]');
+  checks.forEach(c => { c.checked = c.value === p.pramanaType; });
+  document.getElementById('combineAllPramanas').checked = true;
+  document.getElementById('hetuConf').value = p.hetuConf;
+  document.getElementById('vyaptiStr').value = p.vyaptiStr;
+  document.getElementById('mapStatus').textContent = 'Preset loaded. Fields mapped.';
+}
+
+function inferDefaultHetu(sadhyaText) {
+  const s = sadhyaText.toLowerCase();
+  if (s.includes('fire')) return 'smoke is visible on the summit';
+  if (s.includes('rain')) return 'dark cumulonimbus clouds are gathering';
+  if (s.includes('immortal') || s.includes('soul')) return 'scriptural testimony and continuity arguments support the claim';
+  if (s.includes('impermanent')) return 'the entity is produced and therefore perishable';
+  return 'a reliable inferential sign is observed';
+}
+
+function inferDefaultUdaharana(sadhyaText) {
+  const s = sadhyaText.toLowerCase();
+  if (s.includes('fire')) return 'a kitchen hearth where smoke and fire co-occur';
+  if (s.includes('rain')) return 'monsoon coastal fronts where these cloud patterns precede rainfall';
+  if (s.includes('immortal') || s.includes('soul')) return 'scriptural discourse on the continuity of self';
+  if (s.includes('impermanent')) return 'a clay pot that is produced and eventually destroyed';
+  return 'a familiar case where the same sign tracks the same property';
+}
+
+function setPramanaSelection(values, combineAll) {
+  const checks = document.querySelectorAll('input[name="pramanaTypes"]');
+  const set = new Set(values || []);
+  checks.forEach(c => { c.checked = set.has(c.value); });
+  document.getElementById('combineAllPramanas').checked = !!combineAll;
+}
+
+function setFinalAnswer(answerLine, metaLine) {
+  const panel = document.getElementById('finalAnswerPanel');
+  document.getElementById('finalAnswerMain').textContent = answerLine || 'Not solved yet';
+  document.getElementById('finalAnswerMeta').textContent = metaLine || 'Run AUTO MAP to see mode, confidence, and citations.';
+  if (answerLine) {
+    panel.classList.add('show');
+  } else {
+    panel.classList.remove('show');
+  }
+}
+
+function setVerifierPanel(verifier) {
+  const panel = document.getElementById('verifierPanel');
+  if (!verifier) {
+    panel.classList.remove('show');
+    document.getElementById('verifierPass').textContent = 'n/a';
+    document.getElementById('beliefRevision').textContent = 'n/a';
+    document.getElementById('violatedConstraints').textContent = 'n/a';
+    document.getElementById('revisionReason').textContent = 'n/a';
+    document.getElementById('confidenceDecomp').textContent = 'n/a';
+    return;
+  }
+
+  panel.classList.add('show');
+  document.getElementById('verifierPass').textContent = verifier.verifier_pass ? 'PASS' : 'FAIL';
+  const revision = verifier.belief_revision || {};
+  document.getElementById('beliefRevision').textContent = revision.applied ? `${revision.preliminary_status || 'n/a'} -> ${revision.final_status || 'n/a'}` : (revision.final_status || 'none');
+  const violated = verifier.violated_constraints || [];
+  document.getElementById('violatedConstraints').innerHTML = violated.length ? `<ul class="verifier-list">${violated.map(v => `<li>${v}</li>`).join('')}</ul>` : 'none';
+  document.getElementById('revisionReason').textContent = revision.reason || 'none';
+
+  const decomp = verifier.confidence_decomposition || {};
+  document.getElementById('confidenceDecomp').innerHTML = `
+    retrieval=${decomp.retrieval_support ?? 'n/a'} | consistency=${decomp.rule_consistency ?? 'n/a'} | 
+    penalty=${decomp.contradiction_penalty ?? 'n/a'} | authority=${decomp.source_authority ?? 'n/a'} | 
+    final=${decomp.final_confidence ?? 'n/a'}`;
+}
+
+function parseMcq(question) {
+  const optionRegex = /([A-D])\.\s*([^A-D]+?)(?=(?:\s+[A-D]\.|$))/gi;
+  const options = [];
+  let match;
+  while ((match = optionRegex.exec(question)) !== null) {
+    options.push({key: match[1].toUpperCase(), value: match[2].trim()});
+  }
+  if (!options.length) return null;
+
+  const stem = question.split(/\bA\./i)[0].trim();
+  const normalizedStem = stem.toLowerCase();
+  let answerKey = null;
+  let answerValue = null;
+
+  if (normalizedStem.includes('sense-object contact') && normalizedStem.includes('necessary')) {
+    const found = options.find(o => o.value.toLowerCase().includes('pratyak'));
+    if (found) {
+      answerKey = found.key;
+      answerValue = found.value;
+    }
+  }
+
+  return {
+    stem,
+    options,
+    answerKey,
+    answerValue,
+  };
+}
+
+async function autoMapQuestion() {
+  const raw = document.getElementById('questionInput').value.trim();
+  const status = document.getElementById('mapStatus');
+  if (!raw) {
+    status.textContent = 'Please type a question first.';
+    return;
+  }
+
+  try {
+    const resp = await fetch('/api/question-solve', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: raw}),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data.error || 'Question solver failed');
+    }
+
+    const mapping = data.mapping;
+    const q = data.question_result;
+    document.getElementById('paksha').value = mapping.paksha;
+    document.getElementById('sadhya').value = mapping.sadhya;
+    document.getElementById('hetu').value = mapping.hetu;
+    document.getElementById('udaharana').value = mapping.udaharana;
+    setPramanaSelection(mapping.pramanaTypes || ['Anumana'], !!mapping.combineAllPramanas);
+
+    const citations = (mapping.citations || []).join(', ');
+    const answerKey = q.answer_key ? `${q.answer_key}. ` : '';
+    status.textContent = `Solved (${q.mode}): ${answerKey}${q.answer_text} | confidence=${q.confidence} | citations=${citations || 'n/a'}`;
+    setFinalAnswer(
+      `${answerKey}${q.answer_text}`,
+      `mode=${q.mode} | confidence=${q.confidence} | citations=${citations || 'n/a'}`
+    );
+    setVerifierPanel(q.verifier || null);
+    return;
+  } catch (err) {
+    status.textContent = `Question solver fallback: ${err.message}`;
+    setFinalAnswer('', 'Run AUTO MAP to see mode, confidence, and citations.');
+    setVerifierPanel(null);
+  }
+
+  const cleaned = raw.replace(/[?]+$/g, '').trim();
+
+  const mcq = parseMcq(cleaned);
+  if (mcq) {
+    const inferredAnswer = mcq.answerValue || 'the best-supported option';
+    const inferredKey = mcq.answerKey || '?';
+    document.getElementById('paksha').value = 'means of knowledge requiring sense-object contact';
+    document.getElementById('sadhya').value = `${inferredAnswer} is the correct option`;
+    document.getElementById('hetu').value = 'only direct perception arises from immediate sense-object contact';
+    document.getElementById('udaharana').value = 'seeing a pot by eye-object contact is pratyaksha, not inference or testimony';
+    setPramanaSelection(['Pratyaksha', 'Anumana'], false);
+    status.textContent = `MCQ fallback mapped. Predicted answer: ${inferredKey}. ${inferredAnswer}.`;
+    setFinalAnswer(`${inferredKey}. ${inferredAnswer}`, 'mode=mcq-fallback | confidence=n/a | citations=n/a');
+    setVerifierPanel(null);
+    return;
+  }
+
+  let paksha = '';
+  let sadhya = '';
+
+  const patternThere = cleaned.match(/^is there\s+(.+?)\s+(?:in|on|at)\s+(.+)$/i);
+  const patternIs = cleaned.match(/^is\s+(.+?)\s+(.+)$/i);
+  const patternDoes = cleaned.match(/^does\s+(.+?)\s+have\s+(.+)$/i);
+
+  if (patternThere) {
+    sadhya = `${patternThere[1].trim()} is present`;
+    paksha = patternThere[2].trim();
+  } else if (patternDoes) {
+    paksha = patternDoes[1].trim();
+    sadhya = `${patternDoes[2].trim()} is present`;
+  } else if (patternIs) {
+    paksha = patternIs[1].trim();
+    sadhya = patternIs[2].trim();
+  } else {
+    paksha = 'the stated subject';
+    sadhya = cleaned;
+  }
+
+  document.getElementById('paksha').value = paksha;
+  document.getElementById('sadhya').value = sadhya;
+  document.getElementById('hetu').value = inferDefaultHetu(sadhya);
+  document.getElementById('udaharana').value = inferDefaultUdaharana(sadhya);
+  setPramanaSelection(['Anumana'], false);
+  status.textContent = 'Fallback mapped question into Paksa, Sadhya, Hetu, and Udaharana.';
+  setFinalAnswer('Heuristic mapping only', 'mode=fallback | confidence=n/a | citations=n/a');
+  setVerifierPanel(null);
+}
+
+function setMode(m) {
+  currentMode = m;
+  ['Std','Deep','Fast','Debate'].forEach(x => document.getElementById('mode'+x).classList.remove('active'));
+  const map = {standard:'Std',deep:'Deep',fast:'Fast',debate:'Debate'};
+  document.getElementById('mode'+map[m]).classList.add('active');
+}
+
+function showLoading() {
+  document.getElementById('outputPanel').innerHTML = `
+    <div class="loading-wrap">
+      <div class="chakra-outer"></div>
+      <div class="stage-log">
+        <div class="stage-item active"><div class="stage-dot"></div><span class="stage-name">Stage 1 - Input validation</span></div>
+        <div class="stage-item active"><div class="stage-dot"></div><span class="stage-name">Stage 2 - Backend inference</span></div>
+        <div class="stage-item active"><div class="stage-dot"></div><span class="stage-name">Stage 3 - Epistemic classification</span></div>
+        <div class="stage-item active"><div class="stage-dot"></div><span class="stage-name">Stage 4 - Explanatory sections</span></div>
+        <div class="stage-item active"><div class="stage-dot"></div><span class="stage-name">Stage 5 - Trace synthesis</span></div>
+      </div>
+    </div>`;
+}
+
+function prose(t) {
+  if (!t) return '<p><em>Section not available.</em></p>';
+  return t.split('\n').filter(l => l.trim()).map(l => `<p>${l.trim()}</p>`).join('');
+}
+
+function renderResult(inf) {
+  const verdict = inf.gate.verdict;
+  const score = inf.gate.score;
+  const jsonSummary = JSON.stringify(inf.jsonSummary, null, 2);
+  const selectedPramanas = (inf.selectedPramanas || []).join(', ');
+  return `
+    <div class="result-card">
+      <div class="vbanner ${verdict}">
+        <div><div class="verdict-word ${verdict}">${verdict}</div></div>
+        <div>Epistemic score: ${score.toFixed(3)} | Calibrated: ${inf.gate.calibrated_score} | Threshold: ${THRESHOLD}<br><small>Pramana fusion: ${selectedPramanas || 'n/a'}</small></div>
+      </div>
+      <div class="secs">
+        <div class="sec"><div class="sec-head">I. Pratijna</div><div class="sec-body">${prose(inf.sections.I)}</div></div>
+        <div class="sec"><div class="sec-head">II. Hetu</div><div class="sec-body">${prose(inf.sections.II)}</div></div>
+        <div class="sec"><div class="sec-head">III. Udaharana</div><div class="sec-body">${prose(inf.sections.III)}</div></div>
+        <div class="sec"><div class="sec-head">IV. Upanaya</div><div class="sec-body">${prose(inf.sections.IV)}</div></div>
+        <div class="sec"><div class="sec-head">V. Nigamana</div><div class="sec-body">${prose(inf.sections.V)}</div></div>
+        <div class="sec"><div class="sec-head">VI. Gate Analysis</div><div class="sec-body">${prose(inf.sections.VI)}</div></div>
+        <div class="sec"><div class="sec-head">VII. Viveka</div><div class="sec-body">${prose(inf.sections.VII)}</div></div>
+        <div class="sec"><div class="sec-head">VIII. Citations</div><div class="sec-body">${prose(inf.sections.VIII)}</div></div>
+        <div class="sec"><div class="sec-head">Machine-Readable Trace</div><div class="json-out">${jsonSummary.replace(/</g,'&lt;')}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBatchResult(report) {
+  const counts = report.status_counts || {};
+  const rows = (report.rows || []).slice(0, 30).map(r => {
+    if (!r.ok) {
+      return `<tr><td>${r.index}</td><td>error</td><td>${(r.error || '').replace(/</g, '&lt;')}</td></tr>`;
+    }
+    return `<tr><td>${r.index}</td><td>${r.result.status}</td><td>${(r.result.message || '').replace(/</g, '&lt;')}</td></tr>`;
+  }).join('');
+
+  return `
+    <div class="result-card">
+      <div class="vbanner VALID">
+        <div><div class="verdict-word VALID">BATCH REPORT</div></div>
+        <div>Total: ${report.total} | valid: ${counts.valid || 0} | unjustified: ${counts.unjustified || 0} | suspended: ${counts.suspended || 0} | invalid: ${counts.invalid || 0} | error: ${counts.error || 0}</div>
+      </div>
+      <div class="secs">
+        <div class="sec">
+          <div class="sec-head">Batch Rows (first 30)</div>
+          <div class="sec-body">
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <thead><tr><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px">Index</th><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px">Status</th><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px">Message</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function runInference() {
+  const selectedPramanas = Array.from(document.querySelectorAll('input[name="pramanaTypes"]:checked')).map(el => el.value);
+  const payload = {
+    paksha: document.getElementById('paksha').value.trim(),
+    sadhya: document.getElementById('sadhya').value.trim(),
+    hetu: document.getElementById('hetu').value.trim(),
+    udaharana: document.getElementById('udaharana').value.trim(),
+    conflict: document.getElementById('conflict').value.trim(),
+    pramanaType: selectedPramanas[0] || 'Anumana',
+    pramanaTypes: selectedPramanas,
+    combineAllPramanas: document.getElementById('combineAllPramanas').checked,
+    hetuConf: parseFloat(document.getElementById('hetuConf').value) || 0.7,
+    vyaptiStr: parseFloat(document.getElementById('vyaptiStr').value) || 0.7,
+    mode: currentMode,
+  };
+
+  if (!payload.paksha || !payload.sadhya || !payload.hetu) {
+    document.getElementById('outputPanel').innerHTML = `<div class="err-state">Please fill Paksa, Sadhya, and Hetu.</div>`;
+    return;
+  }
+
+  showLoading();
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  try {
+    const resp = await fetch('/api/infer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Inference failed');
+
+    inferenceHistory.unshift(data);
+    activeHistIdx = 0;
+    document.getElementById('outputPanel').innerHTML = renderResult(data);
+  } catch (err) {
+    document.getElementById('outputPanel').innerHTML = `<div class="err-state"><strong>Engine error:</strong> ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function runUploadBatch() {
+  const fileInput = document.getElementById('uploadFile');
+  if (!fileInput.files || fileInput.files.length === 0) {
+    document.getElementById('outputPanel').innerHTML = `<div class="err-state">Please choose a JSON file first.</div>`;
+    return;
+  }
+
+  showLoading();
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const resp = await fetch('/api/infer-upload', { method: 'POST', body: formData });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Batch upload failed');
+    document.getElementById('outputPanel').innerHTML = renderBatchResult(data);
+  } catch (err) {
+    document.getElementById('outputPanel').innerHTML = `<div class="err-state"><strong>Batch error:</strong> ${err.message}</div>`;
+  }
+}
+
+renderPresets();
+loadPreset(0);
+</script>
+</body>
+</html>

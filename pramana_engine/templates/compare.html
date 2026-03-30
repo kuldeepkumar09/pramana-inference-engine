@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparator - Pramana Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f1e6;
+  --panel: #fffdf8;
+  --ink: #24170f;
+  --muted: #6c5d4f;
+  --border: #d9c7a8;
+  --accent: #b75014;
+  --focus: #d88d2a;
+  --valid: #2a7d3f;
+  --unjustified: #9a5500;
+  --suspended: #005f80;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--ink);
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(183,80,20,.14), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(20,93,102,.14), transparent 32%),
+    repeating-linear-gradient(45deg, rgba(160,120,70,.05) 0 2px, transparent 2px 18px),
+    linear-gradient(160deg, #fbf5eb, var(--bg));
+}
+
+.wrap {
+  width: min(1180px, 96vw);
+  margin: 18px auto 28px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 26px rgba(50,28,10,.11);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.head h1 {
+  margin: 0 0 8px;
+  font: 700 24px "Cinzel", serif;
+  color: var(--accent);
+}
+
+.head .sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nav {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.nav a { color: #8e4e18; text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+
+.guide {
+  margin-top: 12px;
+  border: 1px solid #e8d4b2;
+  border-radius: 10px;
+  padding: 10px;
+  background: linear-gradient(135deg, #fff8ea, #fffdf8);
+}
+
+.guide h3 {
+  margin: 0 0 6px;
+  font: 700 13px "Cinzel", serif;
+  color: #7b2949;
+}
+
+.guide ol {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+  font-size: 12px;
+  color: #4f4134;
+}
+
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: 13px "JetBrains Mono", monospace;
+  background: #fffefb;
+  color: var(--ink);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(216, 141, 42, 0.18);
+}
+
+textarea { min-height: 82px; resize: vertical; }
+
+.pramana-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+
+.pcheck {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+  background:#fffaf0;
+  border:1px solid #ecd8ba;
+  padding:7px 8px;
+  border-radius:7px;
+}
+
+.pcheck input { width:auto; }
+
+.run-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(120deg, #c85a14, #8f2f15);
+  color: #fff;
+  font: 700 13px "JetBrains Mono", monospace;
+  cursor: pointer;
+}
+
+.run-btn:hover { filter: brightness(1.07); }
+
+.table { width:100%; border-collapse:collapse; font-size:12px; }
+.table th,.table td { padding:9px 8px; border-bottom:1px solid #eadcc7; text-align:left; }
+.table th { color: var(--muted); }
+
+pre {
+  margin: 0;
+  background:#17130f;
+  color:#f2dfc0;
+  padding:12px;
+  border-radius:8px;
+  overflow:auto;
+  max-height: 360px;
+}
+
+.badge {
+  display:inline-block;
+  padding:4px 9px;
+  border-radius:99px;
+  margin-right:6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  background:#f0e1c7;
+}
+
+.delta-true { background: #fce7d8; color: #8a3f12; }
+.delta-false { background: #e8f5ea; color: #22633a; }
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card head">
+    <h1>Side-by-Side Comparator</h1>
+    <p class="sub">Compare source-agnostic baseline and pramana-constrained inference from the same input in a guided Nyaya-style workflow.</p>
+    <div class="nav">
+      <a href="/">Open Unified Workspace</a>
+      <a href="/app">Back to Main App</a>
+      <a href="/judge">Judge Dashboard</a>
+    </div>
+    <div class="guide">
+      <h3>How To Use</h3>
+      <ol>
+        <li>Enter Paksha, Sadhya, and Hetu.</li>
+        <li>Select pramanas and confidence levels.</li>
+        <li>Run comparison and inspect verdict delta plus traces.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Paksha</label>
+        <input id="paksha" value="the distant hill">
+      </div>
+      <div>
+        <label>Sadhya</label>
+        <input id="sadhya" value="fire is present">
+      </div>
+      <div>
+        <label>Hetu</label>
+        <input id="hetu" value="smoke is visible">
+      </div>
+      <div>
+        <label>Pramana Fusion</label>
+        <div class="pramana-grid">
+          <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Pratyaksha">Pratyaksha</label>
+          <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Anumana" checked>Anumana</label>
+          <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Shabda">Shabda</label>
+          <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Upamana">Upamana</label>
+          <label class="pcheck"><input type="checkbox" name="pramanaTypes" value="Arthapatti">Arthapatti</label>
+        </div>
+        <label class="pcheck" style="margin-top:8px"><input type="checkbox" id="combineAllPramanas" checked>Fuse all pramanas</label>
+      </div>
+      <div>
+        <label>Hetu Confidence</label>
+        <input id="hetuConf" value="0.85">
+      </div>
+      <div>
+        <label>Vyapti Strength</label>
+        <input id="vyaptiStr" value="0.9">
+      </div>
+    </div>
+    <label>Conflict Evidence (optional)</label>
+    <textarea id="conflict" rows="3"></textarea>
+    <button class="run-btn" onclick="runCompare()">Run Comparison</button>
+  </div>
+
+  <div id="out" style="display:none"></div>
+</div>
+
+<script>
+function row(label, c, b) {
+  return `<tr><td>${label}</td><td>${c}</td><td>${b}</td></tr>`;
+}
+
+async function runCompare() {
+  const selectedPramanas = Array.from(document.querySelectorAll('input[name="pramanaTypes"]:checked')).map(el => el.value);
+  const payload = {
+    paksha: document.getElementById('paksha').value.trim(),
+    sadhya: document.getElementById('sadhya').value.trim(),
+    hetu: document.getElementById('hetu').value.trim(),
+    pramanaType: selectedPramanas[0] || 'Anumana',
+    pramanaTypes: selectedPramanas,
+    combineAllPramanas: document.getElementById('combineAllPramanas').checked,
+    hetuConf: parseFloat(document.getElementById('hetuConf').value) || 0.7,
+    vyaptiStr: parseFloat(document.getElementById('vyaptiStr').value) || 0.7,
+    conflict: document.getElementById('conflict').value.trim(),
+  };
+
+  const resp = await fetch('/api/compare', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const data = await resp.json();
+  if (!resp.ok) {
+    alert(data.error || 'Comparison failed');
+    return;
+  }
+
+  const table = `
+    <table class="table">
+      <thead><tr><th>Metric</th><th>Pramana-Constrained</th><th>Source-Agnostic Baseline</th></tr></thead>
+      <tbody>
+        ${row('Verdict', data.constrained.verdict, data.baseline.verdict)}
+        ${row('Accepted', data.constrained.accepted, data.baseline.accepted)}
+        ${row('Status', data.constrained.status, data.baseline.status)}
+        ${row('Calibrated Score', data.constrained.calibrated_score, data.baseline.calibrated_score)}
+      </tbody>
+    </table>
+  `;
+
+  const out = document.getElementById('out');
+  out.style.display = 'block';
+  out.innerHTML = `
+    <div class="card">
+      <h2>Comparison Result</h2>
+      <p>
+        <span class="badge ${data.delta.accepted_changed ? 'delta-true' : 'delta-false'}">Accepted changed: ${data.delta.accepted_changed}</span>
+        <span class="badge ${data.delta.status_changed ? 'delta-true' : 'delta-false'}">Status changed: ${data.delta.status_changed}</span>
+        <span class="badge">Pramana fusion: ${(data.input.selectedPramanas || []).join(', ')}</span>
+      </p>
+      ${table}
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Constrained Trace</h3><pre>${JSON.stringify(data.constrained.trace, null, 2)}</pre></div>
+      <div class="card"><h3>Baseline Trace</h3><pre>${JSON.stringify(data.baseline.trace, null, 2)}</pre></div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

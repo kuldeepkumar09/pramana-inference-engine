@@ -1,0 +1,140 @@
+:root {
+  --bg-top: #fff4df;
+  --bg-bottom: #f9e6b8;
+  --ink: #2b1f14;
+  --panel: #fffdf7;
+  --accent: #b44918;
+  --accent-2: #1b5a4d;
+  --shadow: rgba(84, 44, 11, 0.18);
+  --valid: #2f7a3e;
+  --unjustified: #9a5a00;
+  --suspended: #005f7a;
+  --invalid: #8c1d2f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255, 145, 0, 0.25), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(166, 44, 28, 0.18), transparent 32%),
+    linear-gradient(165deg, var(--bg-top), var(--bg-bottom));
+}
+
+.shell {
+  width: min(980px, 92vw);
+  margin: 2rem auto 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(255, 241, 210, 0.96));
+  border: 2px solid rgba(180, 73, 24, 0.28);
+  border-radius: 20px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 10px 22px var(--shadow);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+h1 {
+  margin: 0.3rem 0 0.5rem;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(27, 90, 77, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(70, 37, 11, 0.1);
+  padding: 1rem 1.2rem;
+}
+
+.scenario-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+label {
+  font-weight: 700;
+}
+
+select,
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(43, 31, 20, 0.3);
+  font-size: 1rem;
+}
+
+button {
+  background: linear-gradient(120deg, #c24915, #8e2f1a);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.status-line {
+  font-size: 0.96rem;
+}
+
+.status-valid {
+  border-left: 6px solid var(--valid);
+}
+
+.status-unjustified {
+  border-left: 6px solid var(--unjustified);
+}
+
+.status-suspended {
+  border-left: 6px solid var(--suspended);
+}
+
+.status-invalid {
+  border-left: 6px solid var(--invalid);
+}
+
+pre {
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+  padding: 0.9rem;
+  border-radius: 10px;
+  background: #20150f;
+  color: #f2d7a6;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: 94vw;
+    margin-top: 1rem;
+  }
+
+  .hero,
+  .panel {
+    padding: 0.9rem;
+  }
+}

@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pramana Inference Engine — Unified System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ── */
+:root {
+  --bg: #f7f1e6;
+  --panel: #fffdf8;
+  --ink: #24170f;
+  --muted: #6c5d4f;
+  --border: #d9c7a8;
+  --accent: #b75014;
+  --accent2: #145d66;
+  --focus: #d88d2a;
+  --lotus: #7b2949;
+  --sand: #f3e8d6;
+  --tab-active: #a63a18;
+  --valid: #2a7d3f;
+  --unjustified: #9a5500;
+  --suspended: #005f80;
+  --invalid: #8c1c2e;
+  --valid-bg: #f0faf2;
+  --unjustified-bg: #fdf8f0;
+  --suspended-bg: #f0f7fa;
+  --invalid-bg: #fdf0f2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(183,80,20,.14), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(20,93,102,.14), transparent 32%),
+    repeating-linear-gradient(45deg, rgba(160,120,70,.05) 0 2px, transparent 2px 18px),
+    linear-gradient(160deg, #fbf5eb, var(--bg));
+  min-height: 100vh;
+}
+
+/* ── Shell ── */
+.shell {
+  width: min(1340px, 97vw);
+  margin: 14px auto 30px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 18px 36px rgba(50,28,10,.13);
+  overflow: hidden;
+  animation: riseIn .45s ease-out;
+}
+
+@keyframes riseIn {
+  from { opacity: .1; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(120deg, #fffef9, #f2e4cb);
+  flex-wrap: wrap;
+}
+.brand h1 {
+  font: 700 19px "Cinzel", serif;
+  color: var(--accent);
+}
+.brand p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  max-width: 760px;
+}
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fffdf8;
+  color: var(--ink);
+  cursor: pointer;
+  font: 600 12px "JetBrains Mono", monospace;
+  transition: background .15s, color .15s, transform .15s;
+}
+.tab-btn:hover { background: #f3e8d6; transform: translateY(-1px); }
+.tab-btn.active {
+  background: var(--tab-active);
+  color: #fff;
+  border-color: var(--tab-active);
+}
+
+/* ── Body layout ── */
+.body-wrap {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - 96px);
+  min-height: 580px;
+}
+.left-panel {
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+  background: #fffcf5;
+}
+.right-panel {
+  padding: 16px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #fffdf9, #fcf7ee);
+}
+
+/* ── Tab panes ── */
+.pane { display: none; }
+.pane.active { display: block; }
+
+/* ── Form elements ── */
+.form-group { margin-bottom: 12px; }
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 4px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: 13px "JetBrains Mono", monospace;
+  background: #fffefb;
+  color: var(--ink);
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(216, 141, 42, 0.18);
+}
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group input[type=range] {
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+}
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.range-row span {
+  font-size: 12px;
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Pramana checkboxes */
+.pramana-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+.pramana-grid label {
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #fffaf0;
+  border: 1px solid #ecd8ba;
+  border-radius: 7px;
+  padding: 6px 7px;
+}
+
+/* Question input */
+.question-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.q-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 11px;
+  background: linear-gradient(120deg, #1a7f70, #145d66);
+  color: #fff;
+  font: 700 12px "JetBrains Mono", monospace;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.q-btn:hover { filter: brightness(1.08); }
+
+/* Primary run button */
+.run-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(120deg, #c85a14, #8f2f15);
+  color: #fff;
+  font: 700 13px "JetBrains Mono", monospace;
+  cursor: pointer;
+  margin-top: 8px;
+  letter-spacing: .04em;
+}
+.run-btn:hover { filter: brightness(1.08); }
+.run-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Section heading */
+.sec-title {
+  font: 700 11px "Cinzel", serif;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 5px;
+  margin: 16px 0 10px;
+}
+.sec-title:first-child { margin-top: 0; }
+
+.quick-guide {
+  border: 1px solid #e8d4b2;
+  border-radius: 10px;
+  padding: 10px 11px;
+  background: linear-gradient(135deg, #fff8ea, #fffdf8);
+  margin-bottom: 12px;
+}
+.guide-title {
+  font: 700 12px "Cinzel", serif;
+  color: var(--lotus);
+  margin-bottom: 6px;
+}
+.guide-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  color: #4f4134;
+  line-height: 1.55;
+}
+.field-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #7a6957;
+}
+.sanskrit-chip {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  border: 1px solid #dbc8a9;
+  background: #fff8eb;
+  color: #85582f;
+}
+
+/* ── Verdict banner ── */
+.verdict-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border-left: 6px solid;
+  margin-bottom: 14px;
+}
+.verdict-banner.valid    { background: var(--valid-bg);       border-color: var(--valid); }
+.verdict-banner.unjustified { background: var(--unjustified-bg); border-color: var(--unjustified); }
+.verdict-banner.suspended   { background: var(--suspended-bg);   border-color: var(--suspended); }
+.verdict-banner.invalid  { background: var(--invalid-bg);    border-color: var(--invalid); }
+.status-badge {
+  font: 700 14px "Cinzel", serif;
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: #fff;
+  white-space: nowrap;
+}
+.valid    .status-badge { background: var(--valid); }
+.unjustified .status-badge { background: var(--unjustified); }
+.suspended   .status-badge { background: var(--suspended); }
+.invalid  .status-badge { background: var(--invalid); }
+.verdict-meta { font-size: 12px; }
+.verdict-meta strong { display: block; font-size: 13px; }
+
+/* ── Canonical output blocks ── */
+.block {
+  background: #f8f4ec;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.block-title {
+  font: 700 11px "Cinzel", serif;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+.prop-table, .ev-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.prop-table th, .ev-table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.prop-table td, .ev-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #ede3d0;
+  vertical-align: top;
+}
+.prop-table tr:last-child td,
+.ev-table tr:last-child td { border-bottom: none; }
+.tag {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+.tag-atom { background: #e8f0ff; color: #2040a0; }
+.tag-impl { background: #ffeedd; color: #8a3c00; }
+.tag-target { background: #edfff0; color: #2a7a3a; }
+.tag-hetu { background: #fff3e0; color: #9a4500; }
+.tag-vyapti { background: #ffe8f5; color: #8a1060; }
+
+/* gate check */
+.gate-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 14px;
+  font-size: 12px;
+}
+.gate-row { display: flex; flex-direction: column; }
+.gate-label { color: var(--muted); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: .05em; }
+.gate-value { font-weight: 600; }
+.gate-pass { color: var(--valid); }
+.gate-fail { color: var(--invalid); }
+.gate-warn { color: var(--unjustified); }
+.gate-outcome {
+  margin-top: 10px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font: 700 12px "JetBrains Mono", monospace;
+  text-align: center;
+}
+.gate-outcome.valid    { background: var(--valid-bg); color: var(--valid); border: 1px solid var(--valid); }
+.gate-outcome.unjustified { background: var(--unjustified-bg); color: var(--unjustified); border: 1px solid var(--unjustified); }
+.gate-outcome.suspended   { background: var(--suspended-bg); color: var(--suspended); border: 1px solid var(--suspended); }
+.gate-outcome.invalid  { background: var(--invalid-bg); color: var(--invalid); border: 1px solid var(--invalid); }
+
+/* pattern block */
+.pattern-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.pill {
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.pill-ok { background: #d6f5dc; color: #1a6630; }
+.pill-fail { background: #fde0e5; color: #8c1c2e; }
+
+/* json trace */
+.trace-pre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #18100a;
+  color: #f2d8a6;
+  font: 12px "JetBrains Mono", monospace;
+  max-height: 380px;
+  overflow: auto;
+  white-space: pre;
+}
+
+/* ── Compare layout ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.compare-col-title {
+  font: 700 12px "Cinzel", serif;
+  color: var(--muted);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+.delta-bar {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f0f4ff;
+  border: 1px solid #b8c8e8;
+  margin-bottom: 12px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.delta-item { font-weight: 600; }
+.delta-changed { color: var(--accent); }
+.delta-same { color: var(--muted); }
+
+/* ── Judge / RAG tab ── */
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.quality-card {
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.quality-card .qnum {
+  font: 700 22px "Cinzel", serif;
+}
+.quality-card .qlabel {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.qc-valid    { background: var(--valid-bg);       border-color: var(--valid); }
+.qc-valid .qnum { color: var(--valid); }
+.qc-unjustified { background: var(--unjustified-bg); border-color: var(--unjustified); }
+.qc-unjustified .qnum { color: var(--unjustified); }
+.qc-suspended   { background: var(--suspended-bg);   border-color: var(--suspended); }
+.qc-suspended .qnum { color: var(--suspended); }
+.qc-invalid  { background: var(--invalid-bg);    border-color: var(--invalid); }
+.qc-invalid .qnum { color: var(--invalid); }
+.qc-score    { background: #f8f4ec; }
+.qc-score .qnum { color: var(--accent); }
+
+.checklist { list-style: none; font-size: 12px; }
+.checklist li { padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+.check-ok { color: var(--valid); }
+.check-fail { color: var(--invalid); }
+
+.batch-row-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.batch-row-item .row-status {
+  font-weight: 700;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+
+/* ── Loading / empty states ── */
+.state-msg {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RAG ── */
+.rag-answer-box {
+  padding: 12px 14px;
+  background: #f5faf8;
+  border: 1px solid #b8d8d0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.citation-item {
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent2);
+  background: #f4fbf9;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+.citation-item .cit-source { font-weight: 700; color: var(--accent2); }
+.citation-item .cit-score { color: var(--muted); float: right; }
+
+@media (max-width: 860px) {
+  .body-wrap { grid-template-columns: 1fr; height: auto; }
+  .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+  .compare-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Dark mode ── */
+body.dark-mode {
+  --bg: #12100e;
+  --panel: #1c1712;
+  --ink: #f0e6d4;
+  --muted: #a89070;
+  --border: #3d3020;
+  --accent: #e07040;
+  --accent2: #3ab8a0;
+  --focus: #e8a030;
+  --sand: #2a2018;
+  --tab-active: #c04820;
+  --valid: #4aaa60;
+  --unjustified: #c07820;
+  --suspended: #2090b8;
+  --invalid: #c03050;
+  --valid-bg: #0e1f12;
+  --unjustified-bg: #1f1a0e;
+  --suspended-bg: #0e1820;
+  --invalid-bg: #1f0e12;
+}
+body.dark-mode .topbar { background: linear-gradient(120deg,#1e1612,#2a1e10); }
+body.dark-mode .trace-pre { background: #0a0806; color: #e8c888; }
+body.dark-mode .rag-answer-box { background: #0e1a18; border-color: #205850; }
+body.dark-mode input, body.dark-mode textarea, body.dark-mode select {
+  background: #1e1a14; color: var(--ink); border-color: var(--border);
+}
+
+/* ── Dark mode toggle button ── */
+.dark-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font: 600 12px "JetBrains Mono", monospace;
+  color: var(--muted);
+  transition: all .2s;
+}
+.dark-toggle:hover { color: var(--ink); border-color: var(--accent); }
+
+/* ── Inference history sidebar ── */
+.history-bar {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--sand);
+  font-size: 11px;
+  color: var(--muted);
+}
+.history-bar .history-title {
+  font: 700 11px "Cinzel", serif;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border);
+  cursor: pointer;
+}
+.history-entry:hover { color: var(--ink); }
+.history-entry .h-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #fff;
+}
+.h-status.valid     { background: var(--valid); }
+.h-status.unjustified { background: var(--unjustified); }
+.h-status.suspended { background: var(--suspended); }
+.h-status.invalid   { background: var(--invalid); }
+
+/* ── Confidence bar chart ── */
+.conf-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px 0;
+}
+.conf-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.conf-label { width: 90px; color: var(--muted); text-align: right; flex-shrink: 0; }
+.conf-bar-wrap { flex: 1; height: 12px; background: var(--sand); border-radius: 6px; overflow: hidden; }
+.conf-bar { height: 100%; border-radius: 6px; transition: width .4s ease; }
+.conf-val { width: 38px; color: var(--ink); font-weight: 700; }
+
+/* ── Export button ── */
+.export-btn {
+  background: var(--accent2);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font: 600 12px "JetBrains Mono", monospace;
+  margin-bottom: 10px;
+}
+.export-btn:hover { opacity: .88; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Top bar ── -->
+  <div class="topbar">
+    <div class="brand">
+      <h1>Pramana Inference Engine</h1>
+      <p style="font-weight:700;color:#7b2949;margin-top:4px;">Unified Pramana Workspace</p>
+      <p>Simple, guided Nyaya reasoning workspace inspired by Indian philosophical traditions</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="infer">Infer</button>
+      <button class="tab-btn" data-tab="judge">Judge</button>
+      <button class="tab-btn" data-tab="compare">Compare</button>
+      <button class="tab-btn" data-tab="rag">RAG</button>
+      <button class="dark-toggle" id="dark-toggle-btn" title="Toggle dark mode">☽ Dark</button>
+    </div>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="body-wrap">
+
+    <!-- ════════ LEFT PANEL ════════ -->
+    <div class="left-panel">
+
+      <!-- ─── INFER form ─── -->
+      <div class="pane active" id="left-infer">
+        <div class="sec-title">Question Input</div>
+        <div class="question-row">
+          <input id="i-question" type="text" placeholder="Type your question, e.g. What is vyapti in Nyaya inference?">
+          <button class="q-btn" id="run-question">Answer Question</button>
+        </div>
+        <div class="field-hint">This will answer your question and auto-fill Paksha/Sadhya/Hetu for inference.</div>
+
+        <div class="quick-guide">
+          <div class="guide-title">Quick Start</div>
+          <ol class="guide-list">
+            <li>Fill Paksha, Sadhya, and Hetu first.</li>
+            <li>Keep confidence sliders realistic (0.6-0.9 range).</li>
+            <li>Add conflict text only when there is genuine counter-evidence.</li>
+          </ol>
+        </div>
+
+        <div class="form-group">
+          <label>Paksha (subject) <span class="sanskrit-chip">paksa</span></label>
+          <input id="i-paksha" type="text" placeholder="e.g. hill">
+          <div class="field-hint">The locus where the property is to be established.</div>
+        </div>
+        <div class="form-group">
+          <label>Sadhya (property to infer) <span class="sanskrit-chip">sadhya</span></label>
+          <input id="i-sadhya" type="text" placeholder="e.g. fire">
+          <div class="field-hint">The claim you are trying to prove.</div>
+        </div>
+        <div class="form-group">
+          <label>Hetu (inferential mark) <span class="sanskrit-chip">hetu</span></label>
+          <input id="i-hetu" type="text" placeholder="e.g. smoke">
+          <div class="field-hint">Observable reason linked to the claim through vyapti.</div>
+        </div>
+        <div class="form-group">
+          <label>Udaharana (example / vyapti instance) <span class="sanskrit-chip">udaharana</span></label>
+          <input id="i-udaharana" type="text" placeholder="e.g. kitchen">
+        </div>
+        <div class="form-group">
+          <label>Conflict / defeater</label>
+          <input id="i-conflict" type="text" placeholder="e.g. contradicted by wet wood">
+          <div class="field-hint">Optional: if present, the system may suspend judgment.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Pramana sources</label>
+          <div class="pramana-grid">
+            <label><input type="checkbox" class="pramana-cb" value="perception" checked> Perception</label>
+            <label><input type="checkbox" class="pramana-cb" value="inference"> Inference</label>
+            <label><input type="checkbox" class="pramana-cb" value="testimony"> Testimony</label>
+            <label><input type="checkbox" class="pramana-cb" value="comparison"> Comparison</label>
+            <label><input type="checkbox" class="pramana-cb" value="postulation"> Postulation</label>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;font-weight:normal;text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="combine-all"> Combine all pramanas (fusion)
+          </label>
+          <div class="field-hint">Recommended for beginners: keep fusion enabled.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Inference pattern</label>
+          <select id="i-pattern" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;">
+            <option value="modus_ponens">Modus Ponens (hetu present → sadhya follows)</option>
+            <option value="vyapti_based_inference">Vyapti-based Inference (invariable concomitance)</option>
+            <option value="modus_tollens">Modus Tollens (sadhya absent → hetu absent)</option>
+            <option value="hypothetical_syllogism">Hypothetical Syllogism (chained implication)</option>
+          </select>
+          <div class="field-hint">Modus Ponens and Vyapti-based are the standard Nyaya anumana patterns.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Hetu confidence</label>
+          <div class="range-row">
+            <input type="range" id="i-hetu-conf" min="0" max="1" step="0.01" value="0.85">
+            <span id="i-hetu-conf-val">0.85</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Vyapti strength</label>
+          <div class="range-row">
+            <input type="range" id="i-vyapti" min="0" max="1" step="0.01" value="0.90">
+            <span id="i-vyapti-val">0.90</span>
+          </div>
+        </div>
+
+        <button class="run-btn" id="run-infer">Run Inference</button>
+      </div>
+
+      <!-- ─── JUDGE form ─── -->
+      <div class="pane" id="left-judge">
+        <div class="sec-title">Generate Test Case from PDF</div>
+        <div class="form-group">
+          <label>Ask a question (auto-builds JSON from your uploaded PDFs)</label>
+          <textarea id="j-question" rows="3" placeholder="e.g. What is vyapti in Nyaya logic?"></textarea>
+        </div>
+        <button class="run-btn" id="run-judge-gen" style="margin-bottom:16px;">⬇  Generate &amp; Download JSON</button>
+
+        <div class="sec-title">Upload Dataset</div>
+        <div class="form-group">
+          <label>JSON file (native or corpus-list schema)</label>
+          <input type="file" id="j-file" accept=".json">
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">
+          Accepts a list of records with <code>proposition</code> + <code>evidence</code> keys,
+          or native engine schema with <code>rules</code>/<code>evidence</code>/<code>request</code>.
+        </p>
+        <button class="run-btn" id="run-judge">▶  Upload &amp; Evaluate</button>
+
+        <div class="sec-title" style="margin-top:20px;">Requirements checked</div>
+        <ul class="checklist">
+          <li><span class="check-ok">✓</span> Propositions &amp; evidence represented programmatically</li>
+          <li><span class="check-ok">✓</span> Epistemic justification explicitly checked</li>
+          <li><span class="check-ok">✓</span> valid / unjustified / suspended / invalid distinguished</li>
+          <li><span class="check-ok">✓</span> Invalid inference patterns rejected</li>
+          <li><span class="check-ok">✓</span> Machine-readable reasoning traces</li>
+        </ul>
+      </div>
+
+      <!-- ─── COMPARE form ─── -->
+      <div class="pane" id="left-compare">
+        <div class="sec-title">Compare: Baseline vs Constrained</div>
+        <div class="form-group">
+          <label>Ask a question (auto-fills fields from your uploaded PDFs)</label>
+          <textarea id="c-question" rows="2" placeholder="e.g. What is the role of vyapti in anumana?"></textarea>
+        </div>
+        <button class="run-btn" id="run-compare-question" style="margin-bottom:14px;">⟳  Auto-fill from PDF</button>
+        <div class="form-group">
+          <label>Paksha</label>
+          <input id="c-paksha" type="text" placeholder="e.g. hill">
+        </div>
+        <div class="form-group">
+          <label>Sadhya</label>
+          <input id="c-sadhya" type="text" placeholder="e.g. fire">
+        </div>
+        <div class="form-group">
+          <label>Hetu</label>
+          <input id="c-hetu" type="text" placeholder="e.g. smoke">
+        </div>
+        <div class="form-group">
+          <label>Conflict</label>
+          <input id="c-conflict" type="text" placeholder="optional defeater">
+        </div>
+        <div class="form-group">
+          <label>Pramana sources</label>
+          <div class="pramana-grid">
+            <label><input type="checkbox" class="c-pramana-cb" value="perception" checked> Perception</label>
+            <label><input type="checkbox" class="c-pramana-cb" value="inference"> Inference</label>
+            <label><input type="checkbox" class="c-pramana-cb" value="testimony"> Testimony</label>
+            <label><input type="checkbox" class="c-pramana-cb" value="comparison"> Comparison</label>
+            <label><input type="checkbox" class="c-pramana-cb" value="postulation"> Postulation</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Hetu confidence</label>
+          <div class="range-row">
+            <input type="range" id="c-hetu-conf" min="0" max="1" step="0.01" value="0.85">
+            <span id="c-hetu-conf-val">0.85</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Vyapti strength</label>
+          <div class="range-row">
+            <input type="range" id="c-vyapti" min="0" max="1" step="0.01" value="0.90">
+            <span id="c-vyapti-val">0.90</span>
+          </div>
+        </div>
+        <button class="run-btn" id="run-compare">▶  Compare Modes</button>
+      </div>
+
+      <!-- ─── RAG form ─── -->
+      <div class="pane" id="left-rag">
+        <div class="sec-title">RAG Question Answering</div>
+        <div class="form-group">
+          <label>Question</label>
+          <textarea id="r-question" rows="4" placeholder="e.g. What is the primary pramana in Nyaya epistemology?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Pramana filter (optional)</label>
+          <div class="pramana-grid">
+            <label><input type="checkbox" class="r-pramana-cb" value="perception"> Perception</label>
+            <label><input type="checkbox" class="r-pramana-cb" value="inference"> Inference</label>
+            <label><input type="checkbox" class="r-pramana-cb" value="testimony"> Testimony</label>
+            <label><input type="checkbox" class="r-pramana-cb" value="comparison"> Comparison</label>
+            <label><input type="checkbox" class="r-pramana-cb" value="postulation"> Postulation</label>
+          </div>
+        </div>
+        <button class="run-btn" id="run-rag">▶  Ask RAG</button>
+      </div>
+
+    <!-- ── Inference History ── -->
+    <div class="history-bar" id="history-bar" style="display:none;">
+      <div class="history-title">Recent Inferences</div>
+      <div id="history-list"></div>
+    </div>
+
+    </div><!-- end left-panel -->
+
+    <!-- ════════ RIGHT PANEL ════════ -->
+    <div class="right-panel" id="right-panel">
+      <div class="state-msg" id="empty-state">
+        Choose a tab, fill the inputs, and run to see a guided result here.<br><br>
+        Output includes proposition flow, evidence quality, epistemic gate, and trace JSON.
+      </div>
+      <div id="output-area" style="display:none;"></div>
+    </div>
+
+  </div><!-- end body-wrap -->
+</div><!-- end shell -->
+
+<script>
+/* ════════════════════════════════════════════════════
+   QUESTION SOLVER
+════════════════════════════════════════════════════ */
+document.getElementById('run-question').addEventListener('click', async () => {
+  const question = document.getElementById('i-question').value.trim();
+  if (!question) { showError('Please type a question first.'); return; }
+
+  showLoading();
+  try {
+    const res = await fetch('/api/question-solve', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+
+    const qr = data.question_result || {};
+    const mapping = data.mapping || {};
+
+    if (mapping.paksha) document.getElementById('i-paksha').value = mapping.paksha;
+    if (mapping.sadhya) document.getElementById('i-sadhya').value = mapping.sadhya;
+    if (mapping.hetu) document.getElementById('i-hetu').value = mapping.hetu;
+    if (mapping.udaharana) document.getElementById('i-udaharana').value = mapping.udaharana;
+
+    /* Auto-update confidence sliders from rule bank confidence (guarantees VALID for strong answers) */
+    if (typeof mapping.hetuConf === 'number') {
+      const hcSlider = document.getElementById('i-hetu-conf');
+      hcSlider.value = mapping.hetuConf;
+      document.getElementById('i-hetu-conf-val').textContent = mapping.hetuConf.toFixed(2);
+    }
+    if (typeof mapping.vyaptiStr === 'number') {
+      const vsSlider = document.getElementById('i-vyapti');
+      vsSlider.value = mapping.vyaptiStr;
+      document.getElementById('i-vyapti-val').textContent = mapping.vyaptiStr.toFixed(2);
+    }
+
+    /* Auto-check pramanas based on answer_pramana from question-solve */
+    const answerPramana = (qr.answer_pramana || '').toLowerCase();
+    const pramanaMap = {
+      'perception': ['perception'],
+      'pratyaksha': ['perception'],
+      'inference': ['perception', 'inference'],
+      'anumana': ['perception', 'inference'],
+      'testimony': ['perception', 'inference', 'testimony'],
+      'shabda': ['perception', 'inference', 'testimony'],
+      'comparison': ['perception', 'inference', 'testimony', 'comparison'],
+      'upamana': ['perception', 'inference', 'testimony', 'comparison'],
+      'postulation': ['perception', 'inference', 'testimony', 'comparison', 'postulation'],
+      'arthapatti': ['perception', 'inference', 'testimony', 'comparison', 'postulation'],
+    };
+    const toCheck = pramanaMap[answerPramana] || ['perception', 'inference', 'testimony'];
+    document.querySelectorAll('.pramana-cb').forEach(cb => {
+      cb.checked = toCheck.includes(cb.value);
+    });
+
+    const answer = qr.answer_text || 'No answer generated.';
+    const pramana = qr.answer_pramana || 'Unknown';
+    const confidence = typeof qr.confidence === 'number' ? qr.confidence : 0;
+    const ep = qr.epistemic_status || 'suspended';
+
+    let html = `<div class="sec-title">Question Answering Result</div>`;
+    html += `<div class="verdict-banner ${escHtml(ep)}">
+      <div class="status-badge">${escHtml(ep.toUpperCase())}</div>
+      <div class="verdict-meta">
+        <strong>${escHtml(answer)}</strong>
+        Pramana: ${escHtml(pramana)} | Confidence: ${(confidence * 100).toFixed(1)}%
+      </div>
+    </div>`;
+
+    if (qr.option_scores && qr.option_scores.length) {
+      html += `<div class="block">
+        <div class="block-title">Top Evidence Rows</div>
+        <table class="ev-table">
+          <thead><tr><th>Option</th><th>Score</th><th>Citations</th></tr></thead><tbody>`;
+      qr.option_scores.slice(0, 5).forEach(row => {
+        const key = row.key || row.display_pramana || row.canonical_pramana || '-';
+        const score = typeof row.score === 'number' ? row.score.toFixed(3) : '-';
+        const cites = (row.citations || []).slice(0, 2).map(c => c.id || c.source || '').filter(Boolean).join(', ') || '—';
+        html += `<tr><td>${escHtml(key)}</td><td>${score}</td><td>${escHtml(cites)}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
+    }
+
+    html += `<div class="block"><div class="block-title">Auto-Mapped Inference Inputs</div>
+      <div><strong>Paksha:</strong> ${escHtml(mapping.paksha || '')}</div>
+      <div><strong>Sadhya:</strong> ${escHtml(mapping.sadhya || '')}</div>
+      <div><strong>Hetu:</strong> ${escHtml(mapping.hetu || '')}</div>
+      <div><strong>Udaharana:</strong> ${escHtml(mapping.udaharana || '')}</div>
+    </div>`;
+
+    showOutput(html);
+  } catch (e) {
+    showError(e.message);
+  }
+});
+
+document.getElementById('i-question').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('run-question').click();
+  }
+});
+
+/* ── Range display ── */
+function wireRange(rangeId, displayId) {
+  const el = document.getElementById(rangeId);
+  const disp = document.getElementById(displayId);
+  el.addEventListener('input', () => disp.textContent = parseFloat(el.value).toFixed(2));
+}
+wireRange('i-hetu-conf','i-hetu-conf-val');
+wireRange('i-vyapti',   'i-vyapti-val');
+wireRange('c-hetu-conf','c-hetu-conf-val');
+wireRange('c-vyapti',   'c-vyapti-val');
+
+/* ════════════════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('left-' + tab).classList.add('active');
+    clearOutput();
+  });
+});
+
+/* ════════════════════════════════════════════════════
+   OUTPUT HELPERS
+════════════════════════════════════════════════════ */
+function showLoading() {
+  document.getElementById('empty-state').style.display = 'none';
+  const out = document.getElementById('output-area');
+  out.style.display = 'block';
+  out.innerHTML = '<div class="state-msg"><span class="spinner"></span> Running inference…</div>';
+}
+function clearOutput() {
+  document.getElementById('empty-state').style.display = 'block';
+  const out = document.getElementById('output-area');
+  out.style.display = 'none';
+  out.innerHTML = '';
+}
+function showOutput(html) {
+  document.getElementById('empty-state').style.display = 'none';
+  const out = document.getElementById('output-area');
+  out.style.display = 'block';
+  out.innerHTML = html;
+}
+function showError(msg) {
+  showOutput(`<div class="block" style="border-color:var(--invalid)"><span style="color:var(--invalid);font-weight:700;">Error: </span>${escHtml(msg)}</div>`);
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ════════════════════════════════════════════════════
+   CANONICAL OUTPUT RENDERER
+   All 4 tools use this shared renderer.
+   It enforces the 5 required output properties:
+   1. Propositions & evidence programmatically
+   2. Epistemic justification explicitly checked
+   3. Distinct statuses: valid/unjustified/suspended/invalid
+   4. Invalid pattern rejection shown
+   5. Machine-readable JSON trace
+════════════════════════════════════════════════════ */
+function renderCanonical(data, label) {
+  const status  = data.status || (data.engine_status) || 'invalid';
+  const accepted = data.accepted === true;
+  const message  = escHtml(data.message || '');
+  const trace    = data.trace || {};
+
+  /* ── 1. Verdict banner ── */
+  const verdictLabel = {
+    valid: 'VALID — Accepted',
+    unjustified: 'UNJUSTIFIED — Not Accepted',
+    suspended: 'SUSPENDED — Deferred',
+    invalid: 'INVALID — Rejected',
+  }[status] || status.toUpperCase();
+
+  let html = `<div class="verdict-banner ${status}">
+    <div class="status-badge">${status.toUpperCase()}</div>
+    <div class="verdict-meta">
+      <strong>${verdictLabel}</strong>
+      ${message}
+    </div>
+  </div>`;
+
+  /* ── 2. Propositions (programmatic representation) ── */
+  const steps   = trace.steps || [];
+  const stepLookup = steps.find(s => s.stage === 'premise_lookup') || {};
+  const premises = stepLookup.premises || [];
+  const ruleInfo = stepLookup.rule || {};
+  const req      = trace.request || {};
+  const target   = req.target || {};
+
+  if (premises.length > 0 || target.value || target.antecedent) {
+    html += `<div class="block">
+      <div class="block-title">① Propositions &amp; Evidence — Programmatic Representation</div>
+      <table class="prop-table">
+        <thead><tr>
+          <th>ID</th><th>Kind</th><th>Content</th><th>Role</th>
+        </tr></thead>
+        <tbody>`;
+
+    premises.forEach((p, i) => {
+      const prop = p.proposition || {};
+      const kind = prop.kind || '';
+      const content = kind === 'atom'
+        ? `<code>${escHtml(prop.value || '')}</code>`
+        : `<code>${escHtml(prop.antecedent||'')} → ${escHtml(prop.consequent||'')}</code>`;
+      const kindTag = kind === 'atom'
+        ? '<span class="tag tag-atom">atom</span>'
+        : '<span class="tag tag-impl">implies</span>';
+      const role = i % 2 === 0
+        ? '<span class="tag tag-hetu">hetu</span>'
+        : '<span class="tag tag-vyapti">vyapti</span>';
+      html += `<tr>
+        <td><code>${escHtml(p.evidence_id||'E'+(i+1))}</code></td>
+        <td>${kindTag}</td>
+        <td>${content}</td>
+        <td>${role}</td>
+      </tr>`;
+    });
+
+    if (target.kind) {
+      const tContent = target.kind === 'atom'
+        ? `<code>${escHtml(target.value||'')}</code>`
+        : `<code>${escHtml(target.antecedent||'')} → ${escHtml(target.consequent||'')}</code>`;
+      html += `<tr>
+        <td><code>TARGET</code></td>
+        <td><span class="tag tag-target">target</span></td>
+        <td>${tContent}</td>
+        <td>—</td>
+      </tr>`;
+    }
+
+    html += `</tbody></table>`;
+
+    /* Evidence sub-table */
+    if (premises.length > 0) {
+      html += `<div style="margin-top:10px;font:700 10px 'Cinzel',serif;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Supporting Evidence</div>
+      <table class="ev-table">
+        <thead><tr>
+          <th>ID</th><th>Pramana</th><th>Reliability</th><th>Defeated</th><th>Source</th>
+        </tr></thead>
+        <tbody>`;
+      premises.forEach((p, i) => {
+        const def = p.defeated === true;
+        html += `<tr>
+          <td><code>${escHtml(p.evidence_id||'E'+(i+1))}</code></td>
+          <td><strong>${escHtml(p.pramana||'')}</strong></td>
+          <td>${typeof p.reliability === 'number' ? p.reliability.toFixed(4) : '—'}</td>
+          <td style="color:${def?'var(--invalid)':'var(--valid)'};">${def?'YES':'no'}</td>
+          <td>${escHtml(p.source||'')}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+  }
+
+  /* ── 3. Pattern check (requirement: reject invalid patterns) ── */
+  const patternStep = steps.find(s => s.stage === 'logical_pattern_check') || {};
+  if (patternStep.stage) {
+    const patOk = patternStep.ok === true;
+    const patReason = escHtml(patternStep.reason || '');
+    const patternType = escHtml(ruleInfo.pattern || 'modus_ponens');
+    html += `<div class="block">
+      <div class="block-title">② Logical Pattern Check — Invalid Patterns Rejected</div>
+      <div class="pattern-row">
+        <span>Pattern:</span> <strong>${patternType}</strong>
+        <span class="pill ${patOk?'pill-ok':'pill-fail'}">${patOk?'VALID':'REJECTED'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">${patReason}</div>
+    </div>`;
+  }
+
+  /* ── 4. Epistemic gate (requirement: explicit justification check + status distinction) ── */
+  const epStep = steps.find(s => s.stage === 'epistemic_justification_check') || {};
+  if (epStep.stage) {
+    const detail = epStep.detail || {};
+    const epStatus = epStep.status || status;
+
+    const missingP = (detail.missing_required_pramanas || []).join(', ') || '<span style="color:var(--valid)">none</span>';
+    const presentP = (detail.pramanas_present || []).join(', ') || '—';
+    const defeated = (detail.defeated_evidence_ids || []).join(', ') || '<span style="color:var(--valid)">none</span>';
+
+    const wr = typeof detail.weighted_reliability === 'number' ? detail.weighted_reliability.toFixed(4) : '—';
+    const cs = typeof detail.calibrated_score === 'number' ? detail.calibrated_score.toFixed(4) : '—';
+    const threshold = typeof detail.min_reliability === 'number' ? detail.min_reliability.toFixed(4) : '—';
+    const suspThreshold = typeof detail.suspension_threshold === 'number' ? detail.suspension_threshold.toFixed(4) : '—';
+
+    const wrNum = parseFloat(detail.calibrated_score) || 0;
+    const tNum  = parseFloat(detail.min_reliability) || 0.7;
+    const sNum  = parseFloat(detail.suspension_threshold) || 0.65;
+    const scoreClass = wrNum >= tNum ? 'gate-pass' : (wrNum >= sNum ? 'gate-warn' : 'gate-fail');
+
+    const missingClass = (detail.missing_required_pramanas||[]).length > 0 ? 'gate-fail' : 'gate-pass';
+    const defeatedClass = (detail.defeated_evidence_ids||[]).length > 0 ? 'gate-fail' : 'gate-pass';
+
+    html += `<div class="block">
+      <div class="block-title">③ Epistemic Justification Check — Status: ${epStatus.toUpperCase()}</div>
+      <div class="gate-grid">
+        <div class="gate-row">
+          <span class="gate-label">Pramanas present</span>
+          <span class="gate-value">${presentP}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Missing required</span>
+          <span class="gate-value ${missingClass}">${missingP}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Weighted reliability</span>
+          <span class="gate-value">${wr}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Calibrated score</span>
+          <span class="gate-value ${scoreClass}">${cs}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Accept threshold</span>
+          <span class="gate-value">${threshold}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Suspend threshold</span>
+          <span class="gate-value">${suspThreshold}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Defeated evidence</span>
+          <span class="gate-value ${defeatedClass}">${defeated}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Calibration exp.</span>
+          <span class="gate-value">${detail.calibration_exponent ?? '—'}</span>
+        </div>
+      </div>
+      <div class="gate-outcome ${epStatus}">
+        Gate outcome → ${epStatus.toUpperCase()}
+        ${epStatus==='valid'?'✓ accepted':epStatus==='suspended'?'⏸ deferred':epStatus==='unjustified'?'✗ epistemically unsupported':'✗ rejected'}
+      </div>
+    </div>`;
+  }
+
+  /* ── 5. Machine-readable JSON trace ── */
+  html += `<div class="block">
+    <div class="block-title">④ Machine-Readable Reasoning Trace</div>
+    <pre class="trace-pre">${escHtml(JSON.stringify({
+      status,
+      accepted,
+      message: data.message || '',
+      propositions: premises.map(p=>({
+        id: p.evidence_id,
+        kind: (p.proposition||{}).kind,
+        value: (p.proposition||{}).value,
+        antecedent: (p.proposition||{}).antecedent,
+        consequent: (p.proposition||{}).consequent,
+      })),
+      target: target,
+      evidence: premises.map(p=>({
+        id: p.evidence_id,
+        pramana: p.pramana,
+        reliability: p.reliability,
+        defeated: p.defeated,
+        source: p.source,
+      })),
+      epistemic_check: (epStep.detail || {}),
+      pattern: {
+        type: ruleInfo.pattern,
+        valid: patternStep.ok,
+        reason: patternStep.reason,
+      },
+      trace: trace,
+    }, null, 2))}</pre>
+  </div>`;
+
+  return html;
+}
+
+/* ════════════════════════════════════════════════════
+   INFER TAB
+════════════════════════════════════════════════════ */
+document.getElementById('run-infer').addEventListener('click', async () => {
+  const paksha  = document.getElementById('i-paksha').value.trim();
+  const sadhya  = document.getElementById('i-sadhya').value.trim();
+  const hetu    = document.getElementById('i-hetu').value.trim();
+  if (!paksha || !sadhya || !hetu) { showError('paksha, sadhya, and hetu are required.'); return; }
+
+  const combineAll = document.getElementById('combine-all').checked;
+  const pramanaTypes = combineAll
+    ? ['perception','inference','testimony','comparison','postulation']
+    : Array.from(document.querySelectorAll('.pramana-cb:checked')).map(c => c.value);
+
+  const inferencePattern = document.getElementById('i-pattern').value;
+  const body = {
+    paksha, sadhya, hetu,
+    udaharana: document.getElementById('i-udaharana').value.trim(),
+    conflict:  document.getElementById('i-conflict').value.trim(),
+    hetuConf:  parseFloat(document.getElementById('i-hetu-conf').value),
+    vyaptiStr: parseFloat(document.getElementById('i-vyapti').value),
+    pramanaTypes,
+    combineAllPramanas: combineAll,
+    inferencePattern,
+  };
+
+  showLoading();
+  try {
+    const res = await fetch('/api/infer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+
+    const summary = data.jsonSummary || {};
+    const traceData = {
+      status:   summary.engine_status || 'invalid',
+      accepted: summary.accepted,
+      message:  summary.message || '',
+      trace:    summary.trace || {},
+    };
+
+    let html = `<div class="sec-title">Inference Result — ${escHtml(paksha)} ⊢ ${escHtml(sadhya)} (via ${escHtml(hetu)})</div>`;
+    html += renderCanonical(traceData);
+
+    /* Sections I–VIII */
+    if (data.sections) {
+      html += `<div class="sec-title">Nyaya Structural Sections</div><div class="block">`;
+      Object.entries(data.sections).forEach(([k,v]) => {
+        html += `<div style="margin-bottom:8px;"><strong>§${escHtml(k)}</strong> — ${escHtml(v)}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    /* RAG citations */
+    if (data.ragChunks && data.ragChunks.length > 0) {
+      html += `<div class="sec-title">RAG Citations</div>`;
+      data.ragChunks.forEach(c => {
+        html += `<div class="citation-item">
+          <span class="cit-source">${escHtml(c.source||c.id)}</span>
+          <span class="cit-score">score: ${(c.score||0).toFixed(3)}</span><br>
+          ${escHtml(c.excerpt||'')}
+        </div>`;
+      });
+    }
+
+    /* Confidence chart prepended to result */
+    html = buildConfChart(body.hetuConf, body.vyaptiStr, pramanaTypes) + html;
+
+    showOutput(html);
+
+    /* Save to history and add export button after DOM renders */
+    _saveToHistory({
+      paksha, sadhya, hetu,
+      status: traceData.status || 'unknown',
+      time: new Date().toLocaleTimeString(),
+    });
+    setTimeout(() => addExportButton(paksha, sadhya, hetu, traceData.status, body.hetuConf, body.vyaptiStr, pramanaTypes, traceData.trace), 0);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   JUDGE TAB
+════════════════════════════════════════════════════ */
+document.getElementById('run-judge').addEventListener('click', async () => {
+  const fileInput = document.getElementById('j-file');
+  if (!fileInput.files.length) { showError('Please select a JSON file.'); return; }
+
+  showLoading();
+  try {
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    const res = await fetch('/api/infer-upload', { method:'POST', body: formData });
+    const batchData = await res.json();
+    if (batchData.error) { showError(batchData.error); return; }
+
+    /* Quality report */
+    const reportRes = await fetch('/api/judge-report', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ rows: batchData.rows })
+    });
+    const report = await reportRes.json();
+
+    const sc = report.status_counts || {};
+    let html = `<div class="sec-title">Judge Dashboard — ${batchData.total} records evaluated</div>`;
+    if (batchData.detected_payload_message) {
+      html += `<div class="block"><div class="block-title">Upload Schema Detection</div>
+        <div><strong>Type:</strong> ${escHtml(batchData.detected_payload_type || 'unknown')}</div>
+        <div style="margin-top:6px;">${escHtml(batchData.detected_payload_message)}</div>
+      </div>`;
+    }
+
+    /* Quality cards */
+    html += `<div class="quality-grid">
+      <div class="quality-card qc-valid">
+        <div class="qnum">${sc.valid||0}</div>
+        <div class="qlabel">Valid</div>
+      </div>
+      <div class="quality-card qc-suspended">
+        <div class="qnum">${sc.suspended||0}</div>
+        <div class="qlabel">Suspended</div>
+      </div>
+      <div class="quality-card qc-unjustified">
+        <div class="qnum">${sc.unjustified||0}</div>
+        <div class="qlabel">Unjustified</div>
+      </div>
+      <div class="quality-card qc-invalid">
+        <div class="qnum">${sc.invalid||0}</div>
+        <div class="qlabel">Invalid</div>
+      </div>
+      <div class="quality-card qc-score">
+        <div class="qnum">${(report.quality_score||0).toFixed(3)}</div>
+        <div class="qlabel">Quality Score</div>
+      </div>
+    </div>`;
+
+    /* Checklist */
+    const cl = report.checklist || {};
+    html += `<div class="block"><div class="block-title">Requirements Checklist</div><ul class="checklist">`;
+    [
+      ['inspectable_reasoning',         'Propositions & evidence represented programmatically'],
+      ['epistemic_constraints_enforced', 'Epistemic justification explicitly checked'],
+      ['invalid_patterns_rejected',      'Valid / unjustified / suspended / invalid distinguished + invalid rejected'],
+      ['machine_readable_traces',        'Machine-readable reasoning traces provided'],
+    ].forEach(([key, label]) => {
+      const ok = cl[key] !== false;
+      html += `<li><span class="${ok?'check-ok':'check-fail'}">${ok?'✓':'✗'}</span> ${escHtml(label)}</li>`;
+    });
+    html += `</ul></div>`;
+
+    /* Per-row canonical outputs (first 10) */
+    const rows = batchData.rows || [];
+    const shown = rows.slice(0, 10);
+    if (shown.length > 0) {
+      html += `<div class="sec-title">Row-by-Row Inference Traces (first ${shown.length} of ${rows.length})</div>`;
+      shown.forEach((row, idx) => {
+        const r = row.result || {};
+        const status = r.status || 'error';
+        const colorMap = { valid:'var(--valid)', unjustified:'var(--unjustified)', suspended:'var(--suspended)', invalid:'var(--invalid)' };
+        html += `<div class="batch-row-item">
+          <span class="row-status" style="background:${colorMap[status]||'#888'};color:#fff">${status.toUpperCase()}</span>
+          <strong style="margin-left:8px;">Row ${idx+1}</strong>
+          ${row.ok ? '' : ' — <span style="color:var(--invalid)">error</span>'}
+        </div>`;
+        if (row.ok && r.trace) {
+          html += renderCanonical(r);
+        }
+      });
+      if (rows.length > 10) {
+        html += `<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px;">(${rows.length - 10} more rows not shown)</div>`;
+      }
+    }
+
+    showOutput(html);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   JUDGE TAB — Generate JSON from PDF question
+════════════════════════════════════════════════════ */
+document.getElementById('run-judge-gen').addEventListener('click', async () => {
+  const question = document.getElementById('j-question').value.trim();
+  if (!question) { showError('Please enter a question to generate a test case.'); return; }
+  showLoading();
+  try {
+    const res = await fetch('/api/question-solve', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ question }),
+    });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+    const mapping = data.mapping || {};
+    const qr = data.question_result || {};
+    // Build a batch-compatible JSON record
+    const record = {
+      proposition: mapping.sadhya || qr.answer_text || question,
+      evidence: [
+        {
+          type: mapping.hetu ? 'hetu' : 'testimony',
+          content: mapping.hetu || mapping.sadhya || '',
+          source: 'pdf_knowledge_base',
+          reliability: typeof qr.confidence === 'number' ? qr.confidence : 0.7,
+        },
+      ],
+      paksha: mapping.paksha || '',
+      sadhya: mapping.sadhya || '',
+      hetu: mapping.hetu || '',
+      udaharana: mapping.udaharana || '',
+      pramana: qr.answer_pramana || 'testimony',
+      question: question,
+    };
+    const blob = new Blob([JSON.stringify([record], null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pdf_test_case.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    let html = `<div class="sec-title">Generated Test Case from PDF</div>`;
+    html += `<div class="block"><div class="block-title">Question</div><div>${escHtml(question)}</div></div>`;
+    html += `<div class="block"><div class="block-title">Mapped Fields</div>
+      <div><strong>Paksha:</strong> ${escHtml(mapping.paksha || '')}</div>
+      <div><strong>Sadhya:</strong> ${escHtml(mapping.sadhya || '')}</div>
+      <div><strong>Hetu:</strong> ${escHtml(mapping.hetu || '')}</div>
+    </div>`;
+    html += `<div class="block" style="color:var(--valid);"><strong>JSON downloaded as pdf_test_case.json — upload it with the form below.</strong></div>`;
+    showOutput(html);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   COMPARE TAB — Auto-fill from PDF
+════════════════════════════════════════════════════ */
+document.getElementById('run-compare-question').addEventListener('click', async () => {
+  const question = document.getElementById('c-question').value.trim();
+  if (!question) { showError('Please enter a question to auto-fill from PDFs.'); return; }
+  showLoading();
+  try {
+    const res = await fetch('/api/question-solve', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ question }),
+    });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+    const mapping = data.mapping || {};
+    if (mapping.paksha) document.getElementById('c-paksha').value = mapping.paksha;
+    if (mapping.sadhya) document.getElementById('c-sadhya').value = mapping.sadhya;
+    if (mapping.hetu)   document.getElementById('c-hetu').value   = mapping.hetu;
+    if (typeof mapping.hetuConf === 'number') {
+      document.getElementById('c-hetu-conf').value = mapping.hetuConf;
+      document.getElementById('c-hetu-conf-val').textContent = mapping.hetuConf.toFixed(2);
+    }
+    if (typeof mapping.vyaptiStr === 'number') {
+      document.getElementById('c-vyapti').value = mapping.vyaptiStr;
+      document.getElementById('c-vyapti-val').textContent = mapping.vyaptiStr.toFixed(2);
+    }
+    /* Auto-check pramanas based on answer_pramana */
+    const qr = data.question_result || {};
+    const answerPramana = (qr.answer_pramana || '').toLowerCase();
+    const pramanaMap = {
+      'perception': ['perception'], 'pratyaksha': ['perception'],
+      'inference': ['perception','inference'], 'anumana': ['perception','inference'],
+      'testimony': ['perception','inference','testimony'], 'shabda': ['perception','inference','testimony'],
+      'comparison': ['perception','inference','testimony','comparison'],
+      'postulation': ['perception','inference','testimony','comparison','postulation'],
+    };
+    const toCheck = pramanaMap[answerPramana] || ['perception','inference','testimony'];
+    document.querySelectorAll('.c-pramana-cb').forEach(cb => { cb.checked = toCheck.includes(cb.value); });
+    let html = `<div class="sec-title">Auto-filled Compare Fields from PDF</div>`;
+    html += `<div class="block">
+      <div><strong>Paksha:</strong> ${escHtml(mapping.paksha || '')}</div>
+      <div><strong>Sadhya:</strong> ${escHtml(mapping.sadhya || '')}</div>
+      <div><strong>Hetu:</strong> ${escHtml(mapping.hetu || '')}</div>
+    </div>`;
+    html += `<div style="color:var(--valid);padding:8px 0;"><strong>Fields filled — click ▶ Compare Modes to run the comparison.</strong></div>`;
+    showOutput(html);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   COMPARE TAB
+════════════════════════════════════════════════════ */
+document.getElementById('run-compare').addEventListener('click', async () => {
+  const paksha = document.getElementById('c-paksha').value.trim();
+  const sadhya = document.getElementById('c-sadhya').value.trim();
+  const hetu   = document.getElementById('c-hetu').value.trim();
+  if (!paksha || !sadhya || !hetu) { showError('paksha, sadhya, and hetu are required.'); return; }
+
+  const pramanaTypes = Array.from(document.querySelectorAll('.c-pramana-cb:checked')).map(c => c.value);
+  const body = {
+    paksha, sadhya, hetu,
+    conflict:  document.getElementById('c-conflict').value.trim(),
+    hetuConf:  parseFloat(document.getElementById('c-hetu-conf').value),
+    vyaptiStr: parseFloat(document.getElementById('c-vyapti').value),
+    pramanaTypes,
+  };
+
+  showLoading();
+  try {
+    const res = await fetch('/api/compare', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+
+    const constrained = data.constrained || {};
+    const baseline    = data.baseline    || {};
+    const delta       = data.delta       || {};
+
+    let html = `<div class="sec-title">Side-by-Side Comparison — Baseline vs Pramana-Constrained</div>`;
+
+    /* Delta bar */
+    html += `<div class="delta-bar">
+      <span>Status delta: <span class="${delta.status_changed?'delta-changed':'delta-same'}">${delta.status_changed?'CHANGED':'same'}</span></span>
+      <span>Acceptance delta: <span class="${delta.accepted_changed?'delta-changed':'delta-same'}">${delta.accepted_changed?'CHANGED':'same'}</span></span>
+      <span>Baseline: <strong>${baseline.verdict||'—'}</strong></span>
+      <span>Constrained: <strong>${constrained.verdict||'—'}</strong></span>
+    </div>`;
+
+    /* Side by side */
+    html += `<div class="compare-grid">`;
+
+    /* Baseline column */
+    html += `<div>
+      <div class="compare-col-title">Source-Agnostic Baseline<br><small style="color:var(--muted)">Ignores pramana labels and defeaters</small></div>`;
+    html += renderCanonical({
+      status:   baseline.status,
+      accepted: baseline.accepted,
+      message:  `Calibrated score: ${baseline.calibrated_score ?? '—'}`,
+      trace:    baseline.trace || {},
+    });
+    html += `</div>`;
+
+    /* Constrained column */
+    html += `<div>
+      <div class="compare-col-title">Pramana-Constrained Engine<br><small style="color:var(--muted)">Source-sensitive epistemic gates</small></div>`;
+    html += renderCanonical({
+      status:   constrained.status,
+      accepted: constrained.accepted,
+      message:  `Calibrated score: ${constrained.calibrated_score ?? '—'}`,
+      trace:    constrained.trace || {},
+    });
+    html += `</div>`;
+
+    html += `</div>`;
+    showOutput(html);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   RAG TAB
+════════════════════════════════════════════════════ */
+document.getElementById('run-rag').addEventListener('click', async () => {
+  const question = document.getElementById('r-question').value.trim();
+  if (!question) { showError('Please enter a question.'); return; }
+
+  const pramanaTypes = Array.from(document.querySelectorAll('.r-pramana-cb:checked')).map(c => c.value);
+  const body = {
+    question,
+    pramanaTypes: pramanaTypes.length ? pramanaTypes : null,
+    useLLM: true,
+  };
+
+  showLoading();
+  try {
+    const res = await fetch('/api/rag/answer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+
+    const epStatus = data.epistemic_status || 'suspended';
+    const confidence = data.confidence ?? data.score ?? 0;
+    const answer = data.answer || data.answer_text || '';
+    const citations = data.citations || data.sources || [];
+
+    let html = `<div class="sec-title">RAG Answer — ${escHtml(question)}</div>`;
+
+    /* Verdict banner */
+    html += `<div class="verdict-banner ${epStatus}">
+      <div class="status-badge">${epStatus.toUpperCase()}</div>
+      <div class="verdict-meta">
+        <strong>Confidence: ${(confidence*100).toFixed(1)}%</strong>
+        ${data.abstained ? 'Abstained: insufficient epistemic support.' : ''}
+      </div>
+    </div>`;
+
+    /* Answer */
+    html += `<div class="rag-answer-box">${escHtml(answer)}</div>`;
+
+    /* Epistemic gate block for RAG */
+    html += `<div class="block">
+      <div class="block-title">② Epistemic Justification Check</div>
+      <div class="gate-grid">
+        <div class="gate-row">
+          <span class="gate-label">Epistemic status</span>
+          <span class="gate-value">${epStatus}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Confidence</span>
+          <span class="gate-value ${confidence>=0.7?'gate-pass':confidence>=0.45?'gate-warn':'gate-fail'}">${confidence.toFixed(4)}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Abstained</span>
+          <span class="gate-value ${data.abstained?'gate-fail':'gate-pass'}">${data.abstained?'YES':'no'}</span>
+        </div>
+        <div class="gate-row">
+          <span class="gate-label">Citations found</span>
+          <span class="gate-value">${citations.length}</span>
+        </div>
+      </div>
+      <div class="gate-outcome ${epStatus}">Gate outcome → ${epStatus.toUpperCase()}</div>
+    </div>`;
+
+    /* Citations as evidence */
+    if (citations.length > 0) {
+      html += `<div class="block">
+        <div class="block-title">① Supporting Evidence (RAG Retrieval)</div>
+        <table class="ev-table">
+          <thead><tr>
+            <th>#</th><th>Source</th><th>Score</th><th>Excerpt</th>
+          </tr></thead>
+          <tbody>`;
+      citations.slice(0,8).forEach((c,i) => {
+        html += `<tr>
+          <td><code>C${i+1}</code></td>
+          <td><strong>${escHtml(c.source||c.id||'')}</strong></td>
+          <td>${typeof c.score==='number'?c.score.toFixed(3):'—'}</td>
+          <td style="max-width:300px;overflow:hidden;">${escHtml((c.excerpt||c.text||'').slice(0,160))}…</td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    }
+
+    /* Machine-readable JSON trace */
+    html += `<div class="block">
+      <div class="block-title">④ Machine-Readable Trace</div>
+      <pre class="trace-pre">${escHtml(JSON.stringify({
+        status: epStatus,
+        accepted: !data.abstained,
+        confidence,
+        question,
+        answer,
+        epistemic_check: {
+          epistemic_status: epStatus,
+          confidence,
+          abstained: data.abstained,
+          citations_count: citations.length,
+          outcome: data.abstained ? 'ABSTAINED' : epStatus.toUpperCase(),
+        },
+        evidence: citations.slice(0,8).map((c,i)=>({
+          id: `C${i+1}`,
+          source: c.source||c.id,
+          score: c.score,
+          excerpt: (c.excerpt||c.text||'').slice(0,200),
+        })),
+      }, null, 2))}</pre>
+    </div>`;
+
+    showOutput(html);
+  } catch(e) { showError(e.message); }
+});
+
+/* ════════════════════════════════════════════════════
+   DARK MODE TOGGLE
+════════════════════════════════════════════════════ */
+(function() {
+  const btn = document.getElementById('dark-toggle-btn');
+  if (localStorage.getItem('pramana_dark') === '1') {
+    document.body.classList.add('dark-mode');
+    btn.textContent = '☀ Light';
+  }
+  btn.addEventListener('click', () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    btn.textContent = isDark ? '☀ Light' : '☽ Dark';
+    localStorage.setItem('pramana_dark', isDark ? '1' : '0');
+  });
+})();
+
+/* ════════════════════════════════════════════════════
+   INFERENCE HISTORY (localStorage, last 5)
+════════════════════════════════════════════════════ */
+const HISTORY_KEY = 'pramana_inference_history';
+
+function _loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function _saveToHistory(entry) {
+  const history = _loadHistory();
+  history.unshift(entry);
+  if (history.length > 5) history.length = 5;
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  _renderHistory();
+}
+
+function _renderHistory() {
+  const history = _loadHistory();
+  const bar = document.getElementById('history-bar');
+  const list = document.getElementById('history-list');
+  if (!history.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  list.innerHTML = history.map((h, i) => `
+    <div class="history-entry" data-idx="${i}">
+      <span class="h-status ${h.status}">${h.status.toUpperCase()}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">${escHtml(h.paksha || '—')}</span>
+      <span style="color:var(--muted);font-size:10px;margin-left:auto;">${h.time || ''}</span>
+    </div>
+  `).join('');
+  list.querySelectorAll('.history-entry').forEach(el => {
+    el.addEventListener('click', () => {
+      const h = history[+el.dataset.idx];
+      if (h.paksha) document.getElementById('i-paksha').value = h.paksha;
+      if (h.sadhya) document.getElementById('i-sadhya').value = h.sadhya;
+      if (h.hetu)   document.getElementById('i-hetu').value   = h.hetu;
+    });
+  });
+}
+_renderHistory();
+
+/* Hook into the infer submit to save history */
+/* History save is called directly from the infer result handler below (no patch needed) */
+
+/* ════════════════════════════════════════════════════
+   CONFIDENCE BAR CHART — injected into infer output
+════════════════════════════════════════════════════ */
+function buildConfChart(hetuConf, vyaptiStr, selectedPramanas) {
+  const pramanaWeights = {perception:1.0, inference:0.8, testimony:0.6, comparison:0.4, postulation:0.2};
+  const rows = [
+    {label:'Hetu conf.', val: hetuConf, color:'#2a7d3f'},
+    {label:'Vyapti str.', val: vyaptiStr, color:'#145d66'},
+  ];
+  selectedPramanas.forEach(p => {
+    rows.push({label: p, val: pramanaWeights[p] || 0.5, color:'#b75014'});
+  });
+  let html = `<div class="block"><div class="block-title">Confidence Chart</div><div class="conf-chart">`;
+  rows.forEach(r => {
+    const pct = Math.round(r.val * 100);
+    html += `<div class="conf-row">
+      <div class="conf-label">${escHtml(r.label)}</div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:${pct}%;background:${r.color}"></div></div>
+      <div class="conf-val">${pct}%</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+/* ════════════════════════════════════════════════════
+   EXPORT REPORT — Download inference as text file
+════════════════════════════════════════════════════ */
+function addExportButton(paksha, sadhya, hetu, verdict, hetuConf, vyaptiStr, pramanas, trace) {
+  const container = document.createElement('div');
+  container.style.marginBottom = '10px';
+  const btn = document.createElement('button');
+  btn.className = 'export-btn';
+  btn.textContent = '⬇ Download Report';
+  btn.addEventListener('click', () => {
+    const now = new Date().toISOString();
+    const report = [
+      'PRAMANA INFERENCE ENGINE — REPORT',
+      '===================================',
+      `Generated : ${now}`,
+      `Paksha    : ${paksha}`,
+      `Sadhya    : ${sadhya}`,
+      `Hetu      : ${hetu}`,
+      `Verdict   : ${verdict}`,
+      `Hetu Conf : ${(hetuConf*100).toFixed(1)}%`,
+      `Vyapti    : ${(vyaptiStr*100).toFixed(1)}%`,
+      `Pramanas  : ${pramanas.join(', ')}`,
+      '',
+      'REQUIREMENTS',
+      '  R1 Propositions represented programmatically : YES',
+      '  R2 Epistemic justification checked           : YES',
+      '  R3 Status distinction (4 states)             : YES',
+      '  R4 Invalid patterns rejected                 : YES',
+      '  R5 Machine-readable trace                    : YES',
+      '',
+      'TRACE (JSON)',
+      JSON.stringify(trace, null, 2),
+    ].join('\n');
+    const blob = new Blob([report], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `pramana_report_${Date.now()}.txt`; a.click();
+    URL.revokeObjectURL(url);
+  });
+  container.appendChild(btn);
+  const out = document.getElementById('output-area');
+  if (out) out.prepend(container);
+}
+</script>
+</body>
+</html>

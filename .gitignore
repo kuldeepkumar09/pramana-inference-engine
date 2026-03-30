@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Test/coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+
+# Runtime logs and temporary outputs
+*.log
+pramana_rag.log
+
+# Local tool metadata
+.qodo/
+
+# IDE/system
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Model/vector cache artifacts (regenerable)
+vector_store_cache/*.index
+vector_store_cache/*.json
