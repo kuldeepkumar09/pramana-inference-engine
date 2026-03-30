@@ -26,3 +26,4 @@ Thumbs.db
 # Model/vector cache artifacts (regenerable)
 vector_store_cache/*.index
 vector_store_cache/*.json
+.env
