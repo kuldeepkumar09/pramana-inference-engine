@@ -1,18 +1,18 @@
-version: "3.9"
-
 services:
-  # Ollama server — runs Mistral 7B
+  # Ollama server — runs Mistral 7B (quantized ~4 GB VRAM; full model ~8 GB)
   ollama:
     image: ollama/ollama:latest
     container_name: pramana_ollama
+    mem_limit: 12g
+    memswap_limit: 12g
     volumes:
       - ollama_data:/root/.ollama
     ports:
       - "11434:11434"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 12
       start_period: 30s
 
@@ -28,7 +28,7 @@ services:
       - ollama_data:/root/.ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
-    entrypoint: ["ollama", "pull", "mistral:7b"]
+    entrypoint: ["ollama", "pull", "tinyllama"]
     restart: "no"
 
   # Pramana Engine Flask app

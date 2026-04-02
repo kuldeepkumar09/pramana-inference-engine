@@ -84,7 +84,8 @@ def test_api_infer_supports_fused_pramana_selection():
     assert response.status_code == 200
     data = response.get_json()
     assert data["combineAllPramanas"] is True
-    assert len(data["selectedPramanas"]) == 5
+    # combineAllPramanas uses ALL_PRAMANAS (6 pramanas including Anupalabdhi)
+    assert len(data["selectedPramanas"]) == 6
 
 
 def test_non_defeater_conflict_text_does_not_force_suspension():

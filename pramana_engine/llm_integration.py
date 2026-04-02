@@ -10,6 +10,7 @@ from typing import List, Dict, Any, Tuple, Optional
 import json
 import os
 import re
+import time
 
 try:
     from ollama import Client
@@ -64,13 +65,18 @@ class MistralLLMEngine:
             
             logger_llm.info(f"Initializing Mistral LLM engine (model={self.model_name}, host={self.ollama_host})")
             
-            self.client = Client(host=self.ollama_host)
-            
-            # Health check
-            if not self.health_check():
-                raise RuntimeError(f"Ollama server not available at {self.ollama_host}")
+            self.client = Client(host=self.ollama_host, timeout=config.llm.timeout)
 
-            self.available_models = self._fetch_available_models()
+            # Single round-trip: health check AND model enumeration combined.
+            # Previously two separate client.list() calls; now one saves 1–30s per init.
+            try:
+                raw_payload = self.client.list()
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Ollama server not available at {self.ollama_host}: {exc}"
+                ) from exc
+            self.available_models = self._parse_model_list(raw_payload)
+            logger_llm.debug("✓ Ollama server available, %d model(s) found.", len(self.available_models))
             resolved = self._resolve_model_name(self.model_name, self.available_models)
             if resolved != self.model_name:
                 logger_llm.warning(
@@ -354,29 +360,31 @@ Be precise and concise."""
             logger_llm.error(f"✗ Ollama server unavailable: {e}")
             return False
 
-    def _fetch_available_models(self) -> List[str]:
-        """Fetch installed model names from Ollama server."""
-        try:
-            payload = self.client.list()
-            models: List[Any] = []
-            if isinstance(payload, dict):
-                models = payload.get("models", []) or []
-            elif payload is not None and hasattr(payload, "models"):
-                models = list(getattr(payload, "models") or [])
+    def _parse_model_list(self, payload: Any) -> List[str]:
+        """Extract model name strings from a client.list() payload (no network call)."""
+        models: List[Any] = []
+        if isinstance(payload, dict):
+            models = payload.get("models", []) or []
+        elif payload is not None and hasattr(payload, "models"):
+            models = list(getattr(payload, "models") or [])
+        names: List[str] = []
+        for model in models:
+            name = ""
+            if isinstance(model, dict):
+                name = str(model.get("name") or model.get("model") or "").strip()
+            else:
+                if hasattr(model, "name") and getattr(model, "name"):
+                    name = str(getattr(model, "name")).strip()
+                elif hasattr(model, "model") and getattr(model, "model"):
+                    name = str(getattr(model, "model")).strip()
+            if name:
+                names.append(name)
+        return names
 
-            names: List[str] = []
-            for model in models:
-                name = ""
-                if isinstance(model, dict):
-                    name = str(model.get("name") or model.get("model") or "").strip()
-                else:
-                    if hasattr(model, "name") and getattr(model, "name"):
-                        name = str(getattr(model, "name")).strip()
-                    elif hasattr(model, "model") and getattr(model, "model"):
-                        name = str(getattr(model, "model")).strip()
-                if name:
-                    names.append(name)
-            return names
+    def _fetch_available_models(self) -> List[str]:
+        """Fetch installed model names from Ollama server (makes one client.list() call)."""
+        try:
+            return self._parse_model_list(self.client.list())
         except Exception as e:
             logger_llm.warning(f"Could not fetch Ollama models list: {e}")
             return []
@@ -418,6 +426,7 @@ Be precise and concise."""
     def _generate_with_fallback(self, prompt: str, system: str, num_predict: int) -> Dict[str, Any]:
         """Generate once; if model missing, refresh models and retry with fallback model.
         If runner crashes (OOM), retry with reduced tokens and context window.
+        Network and timeout failures are retried up to 3 times with exponential backoff.
 
         NOTE — temperature=0 and first-call variation (Bug 5):
           Ollama's temperature=0 sets greedy decoding (always picks highest-probability
@@ -428,7 +437,15 @@ Be precise and concise."""
           "warm-up" prompt before the real query, or use a rule-bank fallback (always
           deterministic) for the most critical answers.
         """
-        try:
+        _RETRY_DELAYS = (1.0, 3.0, 10.0)
+
+        def _is_transient(exc: Exception) -> bool:
+            """True for network/timeout errors that are worth retrying."""
+            msg = str(exc).lower()
+            transient_keywords = ("connection", "timeout", "timed out", "network", "reset by peer", "broken pipe")
+            return any(kw in msg for kw in transient_keywords)
+
+        def _call() -> Dict[str, Any]:
             return self.client.generate(
                 model=self.model_name,
                 prompt=prompt,
@@ -441,54 +458,72 @@ Be precise and concise."""
                     "num_ctx": 2048,
                 },
             )
-        except Exception as e:
-            message = str(e).lower()
 
-            # Handle OOM / runner crash — retry on CPU to bypass VRAM limit
-            if "process has terminated" in message or ("status code: 500" in message and "not found" not in message):
-                logger_llm.warning(
-                    "LLM runner crashed (GPU OOM). Retrying with CPU mode (num_gpu=0, num_predict=128)."
-                )
-                return self.client.generate(
-                    model=self.model_name,
-                    prompt=prompt,
-                    system=system,
-                    stream=False,
-                    options={
-                        "temperature": self.temperature,
-                        "top_p": self.top_p,
-                        "num_predict": 128,
-                        "num_ctx": 1024,
-                        "num_gpu": 0,
-                    },
-                )
+        last_exc: Exception | None = None
+        for attempt, delay in enumerate(_RETRY_DELAYS, 1):
+            try:
+                return _call()
+            except Exception as e:
+                message = str(e).lower()
 
-            if "not found" not in message or "model" not in message:
+                # Handle OOM / runner crash — retry on CPU to bypass VRAM limit
+                if "process has terminated" in message or ("status code: 500" in message and "not found" not in message):
+                    logger_llm.warning(
+                        "LLM runner crashed (GPU OOM). Retrying with CPU mode (num_gpu=0, num_predict=128)."
+                    )
+                    return self.client.generate(
+                        model=self.model_name,
+                        prompt=prompt,
+                        system=system,
+                        stream=False,
+                        options={
+                            "temperature": self.temperature,
+                            "top_p": self.top_p,
+                            "num_predict": 128,
+                            "num_ctx": 1024,
+                            "num_gpu": 0,
+                        },
+                    )
+
+                # Handle model-not-found — swap to fallback model
+                if "not found" in message and "model" in message:
+                    available = self._fetch_available_models()
+                    fallback = self._resolve_model_name(self.model_name, available)
+                    if fallback == self.model_name:
+                        raise
+                    logger_llm.warning(
+                        "Model '%s' unavailable at generation time. Retrying with '%s'.",
+                        self.model_name,
+                        fallback,
+                    )
+                    self.model_name = fallback
+                    return self.client.generate(
+                        model=self.model_name,
+                        prompt=prompt,
+                        system=system,
+                        stream=False,
+                        options={
+                            "temperature": self.temperature,
+                            "top_p": self.top_p,
+                            "num_predict": num_predict,
+                            "num_ctx": 2048,
+                        },
+                    )
+
+                # Transient network/timeout error — exponential backoff retry
+                if _is_transient(e) and attempt < len(_RETRY_DELAYS):
+                    logger_llm.warning(
+                        "Transient LLM error (attempt %d/%d): %s — retrying in %.0fs",
+                        attempt, len(_RETRY_DELAYS), e, delay,
+                    )
+                    last_exc = e
+                    time.sleep(delay)
+                    continue
+
                 raise
 
-            available = self._fetch_available_models()
-            fallback = self._resolve_model_name(self.model_name, available)
-            if fallback == self.model_name:
-                raise
-
-            logger_llm.warning(
-                "Model '%s' unavailable at generation time. Retrying with '%s'.",
-                self.model_name,
-                fallback,
-            )
-            self.model_name = fallback
-            return self.client.generate(
-                model=self.model_name,
-                prompt=prompt,
-                system=system,
-                stream=False,
-                options={
-                    "temperature": self.temperature,
-                    "top_p": self.top_p,
-                    "num_predict": num_predict,
-                    "num_ctx": 2048,
-                },
-            )
+        # All retries exhausted
+        raise RuntimeError(f"LLM generation failed after {len(_RETRY_DELAYS)} attempts") from last_exc
 
 
 class OpenAILLMEngine:

@@ -845,5 +845,812 @@
     "explanation": "Viparyaya is erroneous cognition - a form of Aprama where the object is apprehended contrary to its actual nature (e.g. rope-snake error).",
     "pramana": "Pratyaksa",
     "confidence": 0.95
+  },
+  {
+    "id": "pratyaksha_ultimate_verifier",
+    "keywords": [
+      "ultimately verifies",
+      "ultimately verify",
+      "verifies all knowledge",
+      "foundational pramana",
+      "ultimately grounds",
+      "most foundational",
+      "primary source of knowledge",
+      "ultimate source"
+    ],
+    "answer_option": null,
+    "answer_text": "Pratyaksha",
+    "explanation": "Pratyaksha (perception) is the foundational pramana that ultimately verifies all knowledge. Inference and testimony must ultimately trace back to perceptual grounding — without perception, the vyapti itself cannot be established.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.92
+  },
+  {
+    "id": "parvata_smoke_fire",
+    "keywords": [
+      "hill has fire",
+      "smoke on hill",
+      "parvata",
+      "hill fire smoke",
+      "smoke implies fire",
+      "classic nyaya inference",
+      "nyaya example smoke"
+    ],
+    "answer_option": null,
+    "answer_text": "Anumana (Inference) via Vyapti",
+    "explanation": "The classic Nyaya smoke-fire inference: the hill has fire because it has smoke. Wherever there is smoke there is fire (vyapti). Smoke on hill (hetu) + vyapti = fire on hill (sadhya). This is the canonical example of Anumana.",
+    "pramana": "Anumana",
+    "confidence": 0.98
+  },
+  {
+    "id": "pancavayava_five_members",
+    "keywords": [
+      "pancavayava",
+      "five members",
+      "five-membered syllogism",
+      "five limbed",
+      "pratijna hetu udaharana",
+      "nigamana"
+    ],
+    "answer_option": null,
+    "answer_text": "Pancavayava (Five-membered syllogism)",
+    "explanation": "The Nyaya panchavayava has five members: Pratijna (proposition), Hetu (reason), Udaharana (example with general rule), Upanaya (application to the case), Nigamana (conclusion). This distinguishes Nyaya inference from Western syllogism.",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+
+  {
+    "id": "anupalabdhi_definition",
+    "keywords": ["anupalabdhi", "non-perception", "absence cognition", "non perception", "abhava pramana"],
+    "answer_option": null,
+    "answer_text": "Anupalabdhi (Non-perception)",
+    "explanation": "Anupalabdhi is knowledge of the absence of an object derived from its non-perception in a place where it would be perceptible if it existed. Example: there is no jar on the table because I don't perceive it there.",
+    "pramana": "Anupalabdhi",
+    "confidence": 0.95
+  },
+  {
+    "id": "anupalabdhi_jar_table",
+    "keywords": ["jar not on table", "pot not present", "not perceive pot", "absence of jar", "no jar"],
+    "answer_option": null,
+    "answer_text": "Anupalabdhi",
+    "explanation": "Classic Anupalabdhi example: there is no jar on the table because I do not perceive it there — the absence is known through non-perception.",
+    "pramana": "Anupalabdhi",
+    "confidence": 0.96
+  },
+  {
+    "id": "anupalabdhi_mcq_which_pramana",
+    "keywords": ["which pramana absence", "pramana for absence", "absence known by", "how is absence known"],
+    "answer_option": "D",
+    "answer_text": "Anupalabdhi",
+    "explanation": "Absence (abhava) is known through Anupalabdhi — non-perception of an object that would be perceptible if present.",
+    "pramana": "Anupalabdhi",
+    "confidence": 0.95
+  },
+  {
+    "id": "anupalabdhi_vs_pratyaksha",
+    "keywords": ["anupalabdhi differ pratyaksha", "non-perception differ perception", "absence cognition vs perception"],
+    "answer_option": "C",
+    "answer_text": "Anupalabdhi requires perceptual conditions but infers absence, not presence",
+    "explanation": "Anupalabdhi and Pratyaksha both require perceptual conditions. But Pratyaksha gives direct positive knowledge of presence; Anupalabdhi gives knowledge of absence from the very failure of perception.",
+    "pramana": "Anupalabdhi",
+    "confidence": 0.92
+  },
+
+  {
+    "id": "chala_definition",
+    "keywords": ["chala", "quibble", "equivocation", "word meaning change", "chala in nyaya"],
+    "answer_option": null,
+    "answer_text": "Chala (Quibble / Equivocation)",
+    "explanation": "Chala is a debate fault where the respondent misrepresents the speaker's meaning by deliberately exploiting ambiguity — substituting a secondary or irrelevant meaning of a word for the intended primary one.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "chala_mcq",
+    "keywords": ["chala is which fault", "quibble is called", "equivocation in debate", "debate quibble name"],
+    "answer_option": "A",
+    "answer_text": "Chala",
+    "explanation": "Chala (quibble) is the Nyaya debate fault of exploiting a word's ambiguity to misrepresent the opponent's argument.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "jati_definition",
+    "keywords": ["jati", "futile rejoinder", "sophistical refutation", "jati fallacy", "jati debate"],
+    "answer_option": null,
+    "answer_text": "Jati (Futile Rejoinder)",
+    "explanation": "Jati is a debate fault where the respondent raises irrelevant or false objections by drawing superficial analogies that do not address the actual argument. There are 24 types of Jati in Nyaya.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "jati_mcq",
+    "keywords": ["jati is which debate fault", "futile rejoinder called", "false analogy debate", "24 types jati"],
+    "answer_option": "B",
+    "answer_text": "Jati",
+    "explanation": "Jati (futile rejoinder) is the debate fault of raising false objections through superficial analogies. Nyaya recognizes 24 types of Jati.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "nigrahasthana_definition",
+    "keywords": ["nigrahasthana", "point of defeat", "occasion for rebuke", "defeat in debate"],
+    "answer_option": null,
+    "answer_text": "Nigrahasthana (Point of Defeat)",
+    "explanation": "Nigrahasthana is the occasion when a debater is legitimately defeated — through misunderstanding the opponent's argument, self-contradiction, silence, or repetition. Nyaya lists 22 grounds for defeat.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "nigrahasthana_mcq",
+    "keywords": ["nigrahasthana is", "when debater defeated", "22 points defeat", "grounds of defeat nyaya"],
+    "answer_option": "C",
+    "answer_text": "Nigrahasthana",
+    "explanation": "Nigrahasthana (point of defeat) is when a debater has committed a debating error that legitimately ends their argument. 22 grounds are recognized in Nyaya.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "vitanda_definition",
+    "keywords": ["vitanda", "destructive debate", "cavil", "vitanda wrangling", "vitanda in nyaya"],
+    "answer_option": null,
+    "answer_text": "Vitanda (Destructive/Wrangling Debate)",
+    "explanation": "Vitanda is a debate mode where the goal is only to refute the opponent without establishing any thesis of one's own. Unlike Vada (truth-seeking) and Jalpa (victory-seeking), Vitanda only tears down.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "vitanda_mcq",
+    "keywords": ["vitanda is", "destructive argument called", "refutation without thesis", "debate without establishing"],
+    "answer_option": "D",
+    "answer_text": "Vitanda",
+    "explanation": "Vitanda is the Nyaya debate mode of pure destructive argument — refuting without establishing any positive thesis. Considered the lowest form of discourse.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "vada_honest_debate",
+    "keywords": ["vada", "honest debate", "truth-seeking debate", "vada nyaya", "legitimate discussion"],
+    "answer_option": null,
+    "answer_text": "Vada (Honest / Truth-seeking Debate)",
+    "explanation": "Vada is the highest form of debate in Nyaya — a truth-seeking discussion where both parties use valid means of knowledge, accept valid conclusions, and aim for truth rather than victory.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "jalpa_wrangling_debate",
+    "keywords": ["jalpa", "wrangling", "victory-seeking debate", "jalpa nyaya", "win debate"],
+    "answer_option": null,
+    "answer_text": "Jalpa (Wrangling / Victory-seeking Debate)",
+    "explanation": "Jalpa is debate aimed at winning rather than truth — using any means including quibbles (chala) and futile rejoinders (jati) to defeat the opponent.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "debate_modes_mcq_vada",
+    "keywords": ["which debate mode truth seeking", "highest debate mode", "proper debate nyaya", "right kind debate"],
+    "answer_option": "A",
+    "answer_text": "Vada",
+    "explanation": "Vada is the proper, truth-seeking form of debate in Nyaya. It uses valid arguments and aims to establish truth, not merely win.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "debate_modes_mcq_jalpa",
+    "keywords": ["which debate uses quibble", "debate that uses chala", "victory at any cost debate"],
+    "answer_option": "B",
+    "answer_text": "Jalpa",
+    "explanation": "Jalpa uses any means including chala (quibble) and jati (futile rejoinder) to defeat an opponent without necessarily seeking truth.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "three_debate_modes",
+    "keywords": ["three types debate", "three debate modes nyaya", "vada jalpa vitanda types"],
+    "answer_option": "C",
+    "answer_text": "Vada, Jalpa, Vitanda",
+    "explanation": "Nyaya recognizes three forms of debate: Vada (honest/truth-seeking), Jalpa (wrangling/victory-seeking), and Vitanda (pure destructive refutation). Only Vada leads to valid knowledge.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+
+  {
+    "id": "savyabhicara_definition",
+    "keywords": ["savyabhicara", "anaikantika", "undistributed middle", "erratic reason"],
+    "answer_option": null,
+    "answer_text": "Savyabhicara (Undistributed Middle / Erratic Reason)",
+    "explanation": "Savyabhicara is the hetvabhasa where the hetu (reason) is undistributed — it appears in both sapaksa (positive examples) and vipaksa (negative examples). Example: 'sound is eternal because it is knowable' — knowable applies to both eternal and non-eternal things.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "viruddha_definition",
+    "keywords": ["viruddha", "contradictory reason", "opposite fallacy", "viruddha hetvabhasa"],
+    "answer_option": null,
+    "answer_text": "Viruddha (Contradictory Reason)",
+    "explanation": "Viruddha is the hetvabhasa where the reason (hetu) actually proves the opposite of what is intended. Example: 'sound is eternal because it is produced' — but 'produced things are impermanent', so the hetu contradicts the sadhya.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "satpratipaksha_definition",
+    "keywords": ["satpratipaksha", "counter evidence", "counter argument", "opposing inference"],
+    "answer_option": null,
+    "answer_text": "Satpratipaksha (Counterbalanced Reason)",
+    "explanation": "Satpratipaksha is the hetvabhasa where an equally valid counter-reason exists that establishes the opposite conclusion. When two equally supported inferences conflict, both are suspended.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "asiddha_definition",
+    "keywords": ["asiddha", "unproven reason", "unestablished hetu", "asiddha hetvabhasa"],
+    "answer_option": null,
+    "answer_text": "Asiddha (Unestablished Reason)",
+    "explanation": "Asiddha is the hetvabhasa where the hetu (reason) itself is not established or proven. There are three types: Svarupasiddha (reason non-existent in subject), Ashrayasiddha (subject non-existent), Vyapyatvasiddha (reason's scope unproven).",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "badhita_definition",
+    "keywords": ["badhita", "refuted reason", "contradicted by perception", "badhita hetvabhasa"],
+    "answer_option": null,
+    "answer_text": "Badhita (Refuted Reason)",
+    "explanation": "Badhita is the hetvabhasa where the sadhya (conclusion) is contradicted by a stronger pramana (usually perception). Example: inferring fire is cold from smoke, when perception directly shows fire is hot.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "hetvabhasa_five_types",
+    "keywords": ["five hetvabhasa", "five fallacies", "five types fallacy anumana", "how many hetvabhasa"],
+    "answer_option": "C",
+    "answer_text": "Five (Savyabhicara, Viruddha, Satpratipaksha, Asiddha, Badhita)",
+    "explanation": "Nyaya recognizes five hetvabhasa (fallacious reasons): Savyabhicara (erratic), Viruddha (contradictory), Satpratipaksha (counterbalanced), Asiddha (unestablished), and Badhita (refuted by perception).",
+    "pramana": "Anumana",
+    "confidence": 0.97
+  },
+  {
+    "id": "hetvabhasa_mcq_which",
+    "keywords": ["which is hetvabhasa", "which is not valid hetu", "fallacious reason called", "name hetvabhasa type"],
+    "answer_option": "B",
+    "answer_text": "Hetvabhasa",
+    "explanation": "Hetvabhasa (semblant reason) is the generic term for all types of fallacious reasoning in Nyaya inference. A hetu that appears to be a valid reason but actually violates one of the conditions for valid vyapti.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "upamana_definition_extended",
+    "keywords": ["upamana defined", "upamana meaning", "comparison pramana", "similarity knowledge"],
+    "answer_option": null,
+    "answer_text": "Upamana",
+    "explanation": "Upamana (comparison) is knowledge of a relation between a name and a named object through similarity. One who has been told that a gavaya resembles a cow recognizes a gavaya when seen in the forest by comparing it with the known cow.",
+    "pramana": "Upamana",
+    "confidence": 0.96
+  },
+  {
+    "id": "upamana_gavaya_example",
+    "keywords": ["gavaya", "gavaya cow comparison", "gavaya nyaya", "cow-like animal analogy"],
+    "answer_option": null,
+    "answer_text": "Upamana (Gavaya-Cow Comparison)",
+    "explanation": "The canonical Upamana example: a person told 'a gavaya resembles a cow' goes to a forest and recognizes a gavaya. The recognition is Upamana — knowledge through similarity/comparison, not direct perception or inference.",
+    "pramana": "Upamana",
+    "confidence": 0.98
+  },
+  {
+    "id": "upamana_mcq_pramana",
+    "keywords": ["analogy pramana", "similarity knowledge pramana", "which pramana comparison", "pramana for recognizing similar object"],
+    "answer_option": "C",
+    "answer_text": "Upamana",
+    "explanation": "Upamana (comparison) is the pramana that produces knowledge through similarity — recognizing a new object by comparing it with something previously known.",
+    "pramana": "Upamana",
+    "confidence": 0.95
+  },
+  {
+    "id": "upamana_prior_knowledge",
+    "keywords": ["upamana requires prior", "comparison needs instruction", "upamana verbal instruction"],
+    "answer_option": "A",
+    "answer_text": "Prior verbal instruction about similarity",
+    "explanation": "Upamana requires prior verbal instruction (a form of Shabda) establishing the similarity. Without being told 'a gavaya resembles a cow', the recognition cannot occur as Upamana.",
+    "pramana": "Upamana",
+    "confidence": 0.93
+  },
+
+  {
+    "id": "arthapatti_fat_devadatta",
+    "keywords": ["fat devadatta", "devadatta fat not eating day", "arthapatti example classic"],
+    "answer_option": null,
+    "answer_text": "Arthapatti (Postulation)",
+    "explanation": "Classic Arthapatti example: Devadatta is fat but does not eat during the day. To explain this contradiction, we must postulate that he eats at night. Arthapatti provides the only coherent explanation for an otherwise inexplicable observation.",
+    "pramana": "Arthapatti",
+    "confidence": 0.97
+  },
+  {
+    "id": "arthapatti_definition_extended",
+    "keywords": ["arthapatti meaning", "postulation defined", "explanatory necessity", "only coherent explanation"],
+    "answer_option": null,
+    "answer_text": "Arthapatti",
+    "explanation": "Arthapatti (postulation/presumption) is the knowledge of an unperceived fact assumed to explain a perceived fact that cannot be explained otherwise. It involves inferring the necessary precondition of an observed anomaly.",
+    "pramana": "Arthapatti",
+    "confidence": 0.95
+  },
+  {
+    "id": "arthapatti_mcq",
+    "keywords": ["which pramana postulation", "pramana for presumption", "which pramana arthapatti"],
+    "answer_option": "D",
+    "answer_text": "Arthapatti",
+    "explanation": "Arthapatti (postulation) is the pramana that assumes a fact not otherwise known in order to explain an observed fact. It is distinct from anumana because it does not use a pre-established vyapti.",
+    "pramana": "Arthapatti",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "prameya_objects",
+    "keywords": ["prameya", "objects of knowledge", "twelve prameya", "valid objects"],
+    "answer_option": "B",
+    "answer_text": "Prameya (Objects of Valid Knowledge)",
+    "explanation": "Prameya are the 12 objects of valid knowledge in Nyaya: self, body, senses, sense-objects, cognition, mind, activity, defects, rebirth, result, suffering, and liberation.",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+  {
+    "id": "moksha_liberation",
+    "keywords": ["moksha nyaya", "liberation nyaya", "nirvana nyaya goal", "freedom suffering nyaya"],
+    "answer_option": "D",
+    "answer_text": "Moksha (Liberation from suffering)",
+    "explanation": "The ultimate goal in Nyaya is Moksha — complete and final cessation of all pain and suffering. This is achieved through right knowledge (prama) of the 16 padarthas (categories).",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+
+  {
+    "id": "nyaya_sutra_author",
+    "keywords": ["nyaya sutra author", "who wrote nyaya sutra", "gautama nyaya", "akshapada"],
+    "answer_option": "A",
+    "answer_text": "Akshapada Gautama",
+    "explanation": "The Nyaya Sutra was composed by Akshapada Gautama (also called Gautama). It is the foundational text of the Nyaya school of Indian philosophy, establishing the 16 padarthas and epistemological framework.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "vatsyayana_bhashya",
+    "keywords": ["vatsyayana", "nyaya bhashya", "commentary nyaya sutra", "first commentary"],
+    "answer_option": "B",
+    "answer_text": "Vatsyayana",
+    "explanation": "Vatsyayana wrote the first major commentary (Bhashya) on the Nyaya Sutra. His Nyayabhashya established the interpretation that dominated classical Nyaya.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "navya_nyaya",
+    "keywords": ["navya nyaya", "new nyaya", "gangesa", "tattvacintamani"],
+    "answer_option": "C",
+    "answer_text": "Navya Nyaya",
+    "explanation": "Navya Nyaya (New Logic) was founded by Gangesa Upadhyaya in his Tattvacintamani. It introduced a precise technical language for epistemology and logic that influenced all later Indian philosophy.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "prama_definition",
+    "keywords": ["prama definition", "valid cognition", "yathartha", "true knowledge"],
+    "answer_option": "A",
+    "answer_text": "Prama (Valid Cognition)",
+    "explanation": "Prama is valid cognition — yathartha (as things are) knowledge. It is produced by pramana and represents the object as it actually is. Prama is contrasted with Aprama (invalid cognition).",
+    "pramana": "Pratyaksa",
+    "confidence": 0.95
+  },
+  {
+    "id": "aprama_types",
+    "keywords": ["aprama", "invalid cognition types", "smriti doubt error", "three types aprama"],
+    "answer_option": "D",
+    "answer_text": "Aprama (Invalid Cognition: Smriti, Samsaya, Viparyaya, Tarka)",
+    "explanation": "Aprama (non-prama) includes Smriti (memory — re-presenting a past object, not a new cognition), Samsaya (doubt), Viparyaya (error/misapprehension), and sometimes Tarka (hypothetical reasoning).",
+    "pramana": "Pratyaksa",
+    "confidence": 0.93
+  },
+  {
+    "id": "samsaya_doubt",
+    "keywords": ["samsaya", "doubt nyaya", "two alternatives uncertainty", "samsaya definition"],
+    "answer_option": "B",
+    "answer_text": "Samsaya (Doubt)",
+    "explanation": "Samsaya is a cognition that oscillates between two alternatives — perceiving shared characters without determining which differentiating feature belongs to the object. Example: seeing a tall figure in the distance and doubting whether it is a man or a post.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.94
+  },
+
+  {
+    "id": "vyapti_conditions",
+    "keywords": ["conditions for vyapti", "vyapti requirements", "three conditions vyapti", "establish vyapti"],
+    "answer_option": "A",
+    "answer_text": "Three conditions: paksadharmata, sapaksasattva, vipaksavyavrtti",
+    "explanation": "Valid vyapti requires three conditions: (1) Paksadharmata — hetu is present in the paksha (subject); (2) Sapaksasattva — hetu is present in sapaksa (positive example); (3) Vipaksavyavrtti — hetu is absent from vipaksa (negative cases).",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "vyapti_kitchen_example",
+    "keywords": ["kitchen fire example", "mahakala fire", "kitchen fire smoke", "vyapti example kitchen"],
+    "answer_option": "B",
+    "answer_text": "Kitchen (Mahakala) as positive example (sapaksa)",
+    "explanation": "In the smoke-fire inference, the kitchen (where there is both fire and smoke) is the canonical sapaksa — the positive example establishing that vyapti holds: wherever there is smoke, there is fire.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "kevalanvayi_inference",
+    "keywords": ["kevalanvayi", "only affirmative", "universal affirmative inference", "no vipaksa"],
+    "answer_option": "A",
+    "answer_text": "Kevalanvayi (Purely Affirmative Inference)",
+    "explanation": "Kevalanvayi is an inference where the hetu and sadhya always co-exist — there is no known negative example (vipaksa). Example: 'all things are nameable because they are knowable'. Both knowability and nameability are universal.",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+  {
+    "id": "kevala_vyatireki_inference",
+    "keywords": ["kevala vyatireki", "only negative", "only contrapositive", "no positive example"],
+    "answer_option": "B",
+    "answer_text": "Kevalavyatireki (Purely Negative/Contrapositive Inference)",
+    "explanation": "Kevalavyatireki inference has no positive example — it is established entirely through the contrapositive: wherever the sadhya is absent, the hetu is absent. Example: 'the soul is not made of earth, for it lacks smell' (only earth has smell).",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+
+  {
+    "id": "apta_vacana",
+    "keywords": ["apta vacana", "reliable speaker", "apta", "authoritative testimony", "trustworthy speaker"],
+    "answer_option": null,
+    "answer_text": "Apta-vacana (Statement of a Reliable Person)",
+    "explanation": "Apta-vacana is the testimony of a reliable person (apta) — one who has direct knowledge of the object, is truthful, and communicates clearly. This is the foundation for Shabda as a valid pramana.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "shabda_two_types",
+    "keywords": ["two types shabda", "vaidika laukika", "vedic non-vedic testimony", "shabda classified"],
+    "answer_option": "C",
+    "answer_text": "Vaidika (Vedic) and Laukika (Secular/ordinary)",
+    "explanation": "Shabda is of two types: Vaidika (Vedic testimony — from the Vedas, considered supernaturally authoritative) and Laukika (ordinary testimony — from reliable human speakers with direct knowledge).",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+
+  {
+    "id": "nyaya_sixteen_padarthas",
+    "keywords": ["sixteen padarthas", "16 categories nyaya", "nyaya categories", "padarthas nyaya"],
+    "answer_option": "C",
+    "answer_text": "Sixteen Padarthas",
+    "explanation": "Nyaya philosophy recognizes 16 padarthas (categories): pramana, prameya, samsaya, prayojana, drstanta, siddhanta, avayava, tarka, nirnaya, vada, jalpa, vitanda, hetvabhasa, chala, jati, nigrahasthana.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+  {
+    "id": "drstanta_corroborative",
+    "keywords": ["drstanta", "example in argument", "nyaya example", "illustration inference"],
+    "answer_option": "B",
+    "answer_text": "Drstanta (Corroborative Example)",
+    "explanation": "Drstanta is a corroborative example used in inference — a case where both the hetu and the sadhya are known to co-exist (positive example). Example: the kitchen in the smoke-fire inference.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "nirnaya_certainty",
+    "keywords": ["nirnaya", "decisive cognition", "certainty nyaya", "definitive judgement"],
+    "answer_option": "D",
+    "answer_text": "Nirnaya (Definitive Judgement / Certainty)",
+    "explanation": "Nirnaya is the state of definitive, certain knowledge obtained after resolving doubt through inquiry. It is the goal of the discussion (vada) process — arriving at certain knowledge.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.93
+  },
+  {
+    "id": "tarka_hypothetical",
+    "keywords": ["tarka", "hypothetical reasoning", "reductio ad absurdum", "tarka nyaya"],
+    "answer_option": "A",
+    "answer_text": "Tarka (Hypothetical / Reductive Reasoning)",
+    "explanation": "Tarka is indirect reasoning — assuming the opposite of what is to be proved and showing it leads to absurdity (reductio ad absurdum). Tarka is not an independent pramana but a supporting tool for inference.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+
+  {
+    "id": "purvavat_inference",
+    "keywords": ["purvavat", "prior observation inference", "cause to effect", "past experience inference"],
+    "answer_option": "A",
+    "answer_text": "Purvavat (Inference from Cause to Effect)",
+    "explanation": "Purvavat inference proceeds from cause to effect — based on prior observation of their connection. Example: seeing dark clouds (cause) and inferring rain (effect) based on past experience.",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "sesavat_inference",
+    "keywords": ["sesavat", "effect to cause", "residue inference", "past inference"],
+    "answer_option": "B",
+    "answer_text": "Sesavat (Inference from Effect to Cause)",
+    "explanation": "Sesavat inference proceeds from effect to cause — inferring a past cause from an observed effect. Example: seeing a flooded river (effect) and inferring that it rained in the mountains (cause).",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "samanyato_drsta",
+    "keywords": ["samanyato drsta", "general observation", "inference from general", "seen in other cases"],
+    "answer_option": "C",
+    "answer_text": "Samanyato Drsta (Inference by General Observation)",
+    "explanation": "Samanyato Drsta inference is based on general observation, not on a direct causal connection. Example: inferring the movement of the sun from its changing position, even though the movement itself is imperceptible.",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+
+  {
+    "id": "iks_indian_knowledge_systems",
+    "keywords": ["iks", "indian knowledge systems", "traditional knowledge india", "classical indian philosophy"],
+    "answer_option": null,
+    "answer_text": "Indian Knowledge Systems (IKS)",
+    "explanation": "Indian Knowledge Systems (IKS) refers to the vast corpus of traditional Indian learning including Nyaya, Vaisheshika, Samkhya, Yoga, Mimamsa, Vedanta, and many other schools. The Unriddling Inference 2026 hackathon focuses on formalizing Nyaya epistemology for AI.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "unriddling_inference_theme",
+    "keywords": ["unriddling inference", "hackathon theme", "inference competition", "2026 hackathon"],
+    "answer_option": null,
+    "answer_text": "Nyaya-based epistemic inference for AI",
+    "explanation": "The Unriddling Inference 2026 hackathon challenges participants to formalize Nyaya epistemological principles in AI systems — implementing pramana-based reasoning, hetvabhasa detection, and epistemic status classification.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "pragabhava_prior_absence",
+    "keywords": ["pragabhava", "prior absence", "before creation absence", "absence before birth"],
+    "answer_option": null,
+    "answer_text": "Pragabhava (Prior Absence)",
+    "explanation": "Pragabhava is the prior absence of a thing before its production. Example: the absence of a pot before it is made. It has no beginning but has an end when the thing comes into existence. This is one of the four types of Abhava in Nyaya-Vaisesika.",
+    "pramana": "Abhava",
+    "confidence": 0.93
+  },
+  {
+    "id": "pradhvamsabhava_posterior_absence",
+    "keywords": ["pradhvamsabhava", "posterior absence", "absence after destruction", "after destruction absence"],
+    "answer_option": null,
+    "answer_text": "Pradhvamsabhava (Posterior Absence)",
+    "explanation": "Pradhvamsabhava is the absence of a thing after its destruction. Example: absence of a pot after it is broken. It has a beginning (the moment of destruction) but no end. One of the four types of Abhava.",
+    "pramana": "Abhava",
+    "confidence": 0.93
+  },
+  {
+    "id": "atyantabhava_absolute_absence",
+    "keywords": ["atyantabhava", "absolute absence", "eternal absence", "never existing"],
+    "answer_option": "C",
+    "answer_text": "Atyantabhava (Absolute / Eternal Absence)",
+    "explanation": "Atyantabhava is the absolute or eternal absence — the object has never existed and never will. Example: the sky-flower (kha-puspa) or the horns of a rabbit. It has neither beginning nor end.",
+    "pramana": "Abhava",
+    "confidence": 0.93
+  },
+  {
+    "id": "anyonyabhava_mutual_absence",
+    "keywords": ["anyonyabhava", "mutual absence", "mutual non-identity", "difference between things"],
+    "answer_option": "D",
+    "answer_text": "Anyonyabhava (Mutual / Relational Absence)",
+    "explanation": "Anyonyabhava is the mutual absence or difference between two things — a pot is not a cloth, a cloth is not a pot. It expresses the mutual non-identity of distinct entities.",
+    "pramana": "Abhava",
+    "confidence": 0.92
+  },
+  {
+    "id": "four_types_abhava",
+    "keywords": ["four types absence", "how many types abhava", "abhava types nyaya", "pragabhava pradhvamsa"],
+    "answer_option": "B",
+    "answer_text": "Four: Pragabhava, Pradhvamsabhava, Atyantabhava, Anyonyabhava",
+    "explanation": "Nyaya-Vaisesika recognizes four types of Abhava (absence): Pragabhava (prior absence), Pradhvamsabhava (posterior absence after destruction), Atyantabhava (absolute/eternal absence), and Anyonyabhava (mutual/relational absence).",
+    "pramana": "Abhava",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "pararthanumana_for_others",
+    "keywords": ["pararthanumana", "inference for others", "syllogism in debate", "public inference"],
+    "answer_option": "B",
+    "answer_text": "Pararthanumana (Inference for Others)",
+    "explanation": "Pararthanumana is inference made public — expressed in syllogistic form for others to evaluate. It uses the five-membered Nyaya syllogism. Contrasted with Svarthanumana (inference for oneself).",
+    "pramana": "Anumana",
+    "confidence": 0.94
+  },
+  {
+    "id": "svarthanumana_for_oneself",
+    "keywords": ["svarthanumana", "inference for oneself", "private inference", "personal inference"],
+    "answer_option": "A",
+    "answer_text": "Svarthanumana (Inference for Oneself)",
+    "explanation": "Svarthanumana is private inference — the individual's own reasoning process from perceived hetu to concluded sadhya. It need not be verbalized in the five-membered form. Contrasted with Pararthanumana.",
+    "pramana": "Anumana",
+    "confidence": 0.93
+  },
+  {
+    "id": "vyapti_anvaya_vyatireka",
+    "keywords": ["anvaya vyatireka", "positive negative vyapti", "two forms vyapti", "affirmative contrapositive"],
+    "answer_option": "C",
+    "answer_text": "Anvaya (positive) and Vyatireka (contrapositive)",
+    "explanation": "Vyapti has two forms: Anvaya-vyapti (wherever H is, S is — e.g., wherever there is smoke, there is fire) and Vyatireka-vyapti (wherever S is absent, H is absent — e.g., wherever there is no fire, there is no smoke). Both confirm valid invariable concomitance.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "upanaya_application",
+    "keywords": ["upanaya", "application member", "application syllogism", "applying rule to case"],
+    "answer_option": "D",
+    "answer_text": "Upanaya (Application of General Rule to the Case)",
+    "explanation": "Upanaya is the fourth member of the Nyaya pancavayava syllogism. It applies the general rule (vyapti) from Udaharana to the present case: 'and this hill has smoke' — applying the universal rule to the specific instance.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "udaharana_example_member",
+    "keywords": ["udaharana", "example member syllogism", "third member syllogism", "general rule illustration"],
+    "answer_option": "C",
+    "answer_text": "Udaharana (Example Establishing General Rule)",
+    "explanation": "Udaharana is the third member of the Nyaya pancavayava. It states the general rule with an example: 'Wherever there is smoke, there is fire — as in the kitchen.' It establishes the vyapti that grounds the inference.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+
+  {
+    "id": "samkhya_three_pramanas",
+    "keywords": ["samkhya accepts", "samkhya pramanas", "three pramanas samkhya", "sankhya epistemology"],
+    "answer_option": "B",
+    "answer_text": "Three (Pratyaksa, Anumana, Agama/Sabda)",
+    "explanation": "Samkhya school accepts three pramanas: Pratyaksa (perception), Anumana (inference), and Agama (authoritative testimony/Sabda). It explicitly rejects Upamana and Arthapatti as independent pramanas.",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+  {
+    "id": "advaita_six_pramanas",
+    "keywords": ["advaita accepts", "advaita pramanas six", "vedanta pramanas", "advaita vedanta how many pramanas"],
+    "answer_option": "D",
+    "answer_text": "Six (Pratyaksa, Anumana, Upamana, Sabda, Arthapatti, Anupalabdhi)",
+    "explanation": "Advaita Vedanta accepts all six pramanas: Pratyaksa, Anumana, Upamana, Sabda, Arthapatti, and Anupalabdhi. This is the most comprehensive acceptance among Indian philosophical schools.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "prabhakara_five_pramanas",
+    "keywords": ["prabhakara mimamsa pramanas", "prabhakara accepts", "mimamsa prabhakara count"],
+    "answer_option": "C",
+    "answer_text": "Five (Pratyaksa, Anumana, Upamana, Sabda, Arthapatti)",
+    "explanation": "Prabhakara Mimamsa accepts five pramanas: Pratyaksa, Anumana, Upamana, Sabda, and Arthapatti — rejecting Anupalabdhi as an independent pramana. Bhatta Mimamsa adds Anupalabdhi as the sixth.",
+    "pramana": "Shabda",
+    "confidence": 0.92
+  },
+  {
+    "id": "jain_anekantavada",
+    "keywords": ["jainism epistemology", "anekantavada", "many-sided reality", "nayavada jain"],
+    "answer_option": "A",
+    "answer_text": "Anekantavada (Many-sidedness of Reality)",
+    "explanation": "Jain epistemology is based on Anekantavada — the doctrine that reality is many-sided (anekanta) and cannot be fully grasped from any single viewpoint. This leads to Syadvada (qualified assertion) and Nayavada (standpoint theory).",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+
+  {
+    "id": "tarkasangraha_author",
+    "keywords": ["tarkasangraha", "annambhatta", "who wrote tarkasangraha", "tarka sangraha author"],
+    "answer_option": "B",
+    "answer_text": "Annambhatta",
+    "explanation": "Tarkasangraha was composed by Annambhatta (17th century). It is a concise introductory text on Nyaya-Vaisesika philosophy and one of the most widely studied texts in classical Indian logic.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "nyayamanjari_author",
+    "keywords": ["nyayamanjari", "jayanta bhatta", "who wrote nyayamanjari", "jayanta author"],
+    "answer_option": "C",
+    "answer_text": "Jayanta Bhatta",
+    "explanation": "Nyayamanjari was written by Jayanta Bhatta (9th century CE). It is an encyclopedic commentary exploring and defending Nyaya epistemology against Buddhist and other objections.",
+    "pramana": "Shabda",
+    "confidence": 0.94
+  },
+  {
+    "id": "udayana_navya",
+    "keywords": ["udayana", "navya nyaya predecessor", "udayana nyaya", "nyayakusumanjali"],
+    "answer_option": "A",
+    "answer_text": "Udayana",
+    "explanation": "Udayana (10th-11th century) was a pivotal Nyaya philosopher known for his Nyayakusumanjali (rational proof of God's existence) and Atmatattvaviveka. He is considered a bridge figure between Old and New (Navya) Nyaya.",
+    "pramana": "Shabda",
+    "confidence": 0.93
+  },
+  {
+    "id": "dharmakirti_trirupa",
+    "keywords": ["dharmakirti", "trirupa linga", "three-characterized mark", "buddhist logic mark"],
+    "answer_option": "C",
+    "answer_text": "Trirupa-linga (Three-characterized logical mark)",
+    "explanation": "Dharmakirti formalized the trirupa-linga — the three conditions a valid logical mark (linga/hetu) must satisfy: (1) present in the subject (paksadharmata), (2) present in similar cases (sapaksasattva), (3) absent from dissimilar cases (vipaksavyavrtti). This mirrors Nyaya's hetu conditions.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "gangesa_tattvacintamani",
+    "keywords": ["gangesa", "tattvacintamani", "navya nyaya founder", "new logic founder"],
+    "answer_option": "B",
+    "answer_text": "Gangesa Upadhyaya / Tattvacintamani",
+    "explanation": "Gangesa Upadhyaya (13th-14th century) founded Navya Nyaya with his Tattvacintamani (Jewel of Reflection on Truth). He introduced precise technical vocabulary that revolutionized Indian epistemology and logic.",
+    "pramana": "Shabda",
+    "confidence": 0.96
+  },
+
+  {
+    "id": "classify_gavaya_recognition_openended",
+    "keywords": ["person recognizes gavaya", "forest animal cow-like", "first time seeing gavaya", "recognize animal told about"],
+    "answer_option": null,
+    "answer_text": "Upamana",
+    "explanation": "When a person who has been told 'a gavaya resembles a cow' goes to a forest and recognizes the animal they see as a gavaya — this is Upamana. The cognition arises through the similarity relation between the gavaya (new object) and the cow (known object), not through direct perception alone.",
+    "pramana": "Upamana",
+    "confidence": 0.97
+  },
+  {
+    "id": "classify_flood_sesavat",
+    "keywords": ["flooded river rain", "swollen river past rain", "river flooding cause inference", "river swollen inference"],
+    "answer_option": null,
+    "answer_text": "Anumana (Sesavat type — Inference from Effect to Cause)",
+    "explanation": "Inferring that it rained heavily upstream from observing a flooded river is Sesavat Anumana — inference from effect (flooded river) to cause (past rainfall). The vyapti: rivers flood when there is heavy rain upstream.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "classify_dark_clouds_purvavat",
+    "keywords": ["dark clouds rain coming", "clouds predict rain", "inference rain from clouds", "clouds imply rain"],
+    "answer_option": null,
+    "answer_text": "Anumana (Purvavat type — Inference from Cause to Effect)",
+    "explanation": "Inferring future rain from seeing dark clouds gathering is Purvavat Anumana — inference from cause (dark clouds) to effect (coming rain), based on prior observed connection between the two.",
+    "pramana": "Anumana",
+    "confidence": 0.96
+  },
+  {
+    "id": "classify_night_eating_arthapatti",
+    "keywords": ["fat person not eating day eats night", "explain fat despite fasting", "must eat at night because fat"],
+    "answer_option": null,
+    "answer_text": "Arthapatti (Postulation)",
+    "explanation": "If Devadatta is fat but is seen to never eat during the day, we must postulate he eats at night to explain the otherwise inexplicable observation. This is Arthapatti — the only coherent explanation for a seemingly contradictory set of facts.",
+    "pramana": "Arthapatti",
+    "confidence": 0.97
+  },
+  {
+    "id": "classify_no_jar_anupalabdhi",
+    "keywords": ["no jar on table", "jar not there", "table empty no pot", "cannot see jar table"],
+    "answer_option": null,
+    "answer_text": "Anupalabdhi (Non-perception of absence)",
+    "explanation": "When I look at a table and do not see a jar — though the conditions for perception are met — I cognize the absence of the jar. This is Anupalabdhi: knowledge of absence through non-perception of what would be perceptible if it existed.",
+    "pramana": "Anupalabdhi",
+    "confidence": 0.96
+  },
+  {
+    "id": "classify_vedic_statement_shabda",
+    "keywords": ["vedic injunction knowledge", "upanishad statement", "teacher disciple testimony", "heard from reliable teacher"],
+    "answer_option": null,
+    "answer_text": "Shabda (Verbal Testimony)",
+    "explanation": "Knowledge gained from a reliable teacher (apta) or from Vedic injunctions is Shabda pramana. The validity depends on the authority (apta-vakya) of the speaker — a reliable person with direct knowledge who communicates truly.",
+    "pramana": "Shabda",
+    "confidence": 0.95
+  },
+  {
+    "id": "classify_rope_snake_error",
+    "keywords": ["rope seen as snake", "rope snake illusion", "mistaking rope for snake"],
+    "answer_option": null,
+    "answer_text": "Viparyaya (Error / Aprama) — NOT a valid pramana",
+    "explanation": "Mistaking a rope for a snake in dim light is Viparyaya — erroneous cognition (Aprama). The object (rope) is apprehended contrary to its actual nature (as snake). This is not a pramana but a failure of valid cognition, illustrating the difference between Prama and Aprama.",
+    "pramana": "Pratyaksa",
+    "confidence": 0.95
+  },
+  {
+    "id": "hetvabhasa_savyabhicara_example",
+    "keywords": ["sound eternal knowable", "knowable eternal sound", "example savyabhicara", "erratic reason example"],
+    "answer_option": "A",
+    "answer_text": "Savyabhicara (Erratic/Undistributed Middle)",
+    "explanation": "The inference 'sound is eternal because it is knowable' is Savyabhicara. The hetu 'knowable' is too broad — it applies to both eternal things (sky) and non-eternal things (pot). The reason does not conclusively distinguish eternal from non-eternal.",
+    "pramana": "Anumana",
+    "confidence": 0.95
+  },
+  {
+    "id": "hetvabhasa_viruddha_example",
+    "keywords": ["produced things impermanent", "sound impermanent produced", "viruddha example", "contradictory hetu example"],
+    "answer_option": "B",
+    "answer_text": "Viruddha (Contradictory Reason)",
+    "explanation": "The inference 'sound is eternal because it is produced' is Viruddha. The hetu 'produced' actually establishes the opposite of what is intended — produced things are impermanent, so the reason contradicts the sadhya (eternality).",
+    "pramana": "Anumana",
+    "confidence": 0.95
   }
 ]

@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import threading
 from typing import Any, Dict
 
+_logger = logging.getLogger("pramana.web")
+
 from flask import Flask, jsonify, render_template, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from .config import get_config
 from .engine import PramanaInferenceEngine
@@ -156,6 +162,85 @@ STATUS_THEME: Dict[str, Dict[str, str]] = {
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
+    # Rate limiter: 120 requests per hour per IP on expensive endpoints (C3)
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=[],
+        storage_uri="memory://",
+        headers_enabled=True,
+    )
+
+    # L9: API version header on every response + discovery endpoint.
+    @app.after_request
+    def _add_api_version_header(response):
+        response.headers["X-API-Version"] = "1.0"
+        response.headers["X-Pramana-Engine"] = "nyaya-neuro-symbolic"
+        return response
+
+    @app.get("/api/version")
+    def api_version():
+        return jsonify({
+            "version": "1.0",
+            "pramanas": list(ALL_PRAMANAS),
+            "patterns": [
+                "modus_ponens", "modus_tollens", "hypothetical_syllogism",
+                "vyapti_based_inference", "upamana_based_inference",
+                "anupalabdhi_based_inference", "pancavayava",
+                "shabda_based_inference", "arthapatti_based_inference",
+            ],
+            "engine": "PramanaInferenceEngine",
+            "status_values": ["VALID", "SUSPENDED", "UNJUSTIFIED", "INVALID"],
+        })
+
+    @app.get("/api/health")
+    def api_health():
+        """Comprehensive startup health check: packages, env vars, FAISS, LLM, rule bank."""
+        import importlib
+        checks: dict = {}
+        # 1. Required packages
+        for pkg in ("faiss", "sentence_transformers", "flask", "ollama"):
+            try:
+                importlib.import_module(pkg)
+                checks[f"pkg_{pkg}"] = "ok"
+            except ImportError:
+                checks[f"pkg_{pkg}"] = "MISSING"
+        # 2. Critical env vars
+        checks["env_ollama_host"] = os.environ.get("OLLAMA_HOST", "(default http://localhost:11434)")
+        checks["env_admin_token"] = "set" if os.environ.get("PRAMANA_ADMIN_TOKEN") else "NOT_SET"
+        checks["env_demo_mode"] = get_config().api.demo_mode
+        # 3. FAISS vector store
+        try:
+            _pipe = get_rag_pipeline()
+            if not _pipe._initialized:
+                _pipe.initialize()
+            checks["vector_store"] = "ok" if _pipe._initialized else "not_initialized"
+            checks["vector_store_chunks"] = _pipe.vector_store.size() if _pipe.vector_store else 0
+        except Exception as exc:
+            checks["vector_store"] = f"ERROR: {exc}"
+        # 4. LLM availability
+        try:
+            _pipe = get_rag_pipeline()
+            checks["llm"] = "ok" if _pipe.llm_engine else "unavailable_demo_mode_active"
+            if _pipe.llm_engine:
+                checks["llm_model"] = getattr(_pipe.llm_engine, "model_name", "unknown")
+        except Exception as exc:
+            checks["llm"] = f"ERROR: {exc}"
+        # 5. Rule bank
+        try:
+            from .qa_solver import _load_rules as _lr
+            _rules = _lr()
+            checks["rule_bank"] = f"ok ({len(_rules)} rules)"
+        except Exception as exc:
+            checks["rule_bank"] = f"ERROR: {exc}"
+        # Overall status
+        has_problem = any(
+            isinstance(v, str) and ("ERROR" in v or "MISSING" in v)
+            for v in checks.values()
+        )
+        checks["overall"] = "degraded" if has_problem else "healthy"
+        return jsonify(checks), (207 if has_problem else 200)
+
     # Authority weights for building fused evidence (scaled 0-5 → used in calibration formula)
     pramana_authority = {k: int(v * 5) for k, v in PRAMANA_AUTHORITY.items()}
     all_pramanas = list(ALL_PRAMANAS)
@@ -164,6 +249,7 @@ def create_app() -> Flask:
     _UNICODE_PRAMANA_MAP = {
         "pratyakṣa": "perception", "anumāna": "inference",
         "śabda": "testimony", "upamāna": "comparison", "arthāpatti": "postulation",
+        "anupalabdhi": "non_perception", "abhāva": "non_perception",
     }
 
     def _normalize_pramana(label: str) -> str:
@@ -412,6 +498,7 @@ def create_app() -> Flask:
         return jsonify({"scenarios": list(SCENARIOS.keys())})
 
     @app.post("/api/infer")
+    @limiter.limit("120 per hour")
     def infer_from_ui():
         payload = request.get_json(silent=True) or {}
 
@@ -420,10 +507,27 @@ def create_app() -> Flask:
         hetu = str(payload.get("hetu", "")).strip()
         if not paksha or not sadhya or not hetu:
             return jsonify({"error": "paksha, sadhya, and hetu are required."}), 400
+        _MAX_FIELD = 512
+        if len(paksha) > _MAX_FIELD or len(sadhya) > _MAX_FIELD or len(hetu) > _MAX_FIELD:
+            return jsonify({"error": f"paksha, sadhya, and hetu must each be ≤{_MAX_FIELD} characters."}), 400
 
         udaharana = str(payload.get("udaharana", "")).strip()
         conflict = str(payload.get("conflict", "")).strip()
         pramana_type = str(payload.get("pramanaType", "Anumana"))
+        # Validate pramana label — reject completely unrecognized strings
+        _pt_lower = pramana_type.strip().lower()
+        _pt_canonical = normalize_pramana(_pt_lower)
+        _testimony_aliases = {"testimony", "shabda", "sabda", "verbal", "scriptural", "agama"}
+        if (
+            _pt_lower
+            and _pt_lower not in ALL_PRAMANAS
+            and _pt_canonical == "testimony"
+            and _pt_lower not in _testimony_aliases
+        ):
+            return jsonify({
+                "error": f"Unrecognized pramana label: {pramana_type!r}",
+                "valid_labels": list(ALL_PRAMANAS),
+            }), 400
         selected_pramanas = _selected_pramanas(payload)
         _valid_patterns = {"modus_ponens", "modus_tollens", "hypothetical_syllogism", "vyapti_based_inference"}
         inference_pattern = str(payload.get("inferencePattern", "modus_ponens")).strip().lower()
@@ -581,6 +685,7 @@ def create_app() -> Flask:
         return jsonify(response)
 
     @app.post("/api/question-solve")
+    @limiter.limit("120 per hour")
     def question_solve():
         payload = request.get_json(silent=True) or {}
         question = str(payload.get("question", "")).strip()
@@ -907,12 +1012,44 @@ def create_app() -> Flask:
             return jsonify({"error": "rows must be a list."}), 400
 
         status_counts: Dict[str, int] = {"valid": 0, "unjustified": 0, "suspended": 0, "invalid": 0, "error": 0}
+        pramana_dist: Dict[str, int] = {}
+        per_row_summary = []
+        r1_ok = r2_ok = r4_ok = r5_ok = True
+
         for row in rows:
             if not isinstance(row, dict) or not row.get("ok"):
                 status_counts["error"] += 1
+                per_row_summary.append({"index": row.get("index", "?"), "status": "error", "pramana": None, "accepted": False, "error": row.get("error", "unknown")})
                 continue
-            status = row.get("result", {}).get("status", "error")
+            result = row.get("result", {})
+            status = result.get("status", "error")
             status_counts[status] = status_counts.get(status, 0) + 1
+
+            # Pramana distribution
+            pramana = result.get("pramana") or result.get("evidence_pramana") or "unknown"
+            pramana_dist[pramana] = pramana_dist.get(pramana, 0) + 1
+
+            # R1-R5 derived from trace
+            trace = result.get("trace") or {}
+            steps = trace.get("steps", [])
+            if not any(True for s in steps if s.get("requirement") == "R1"):
+                r1_ok = False
+            if not any(True for s in steps if s.get("requirement") == "R2"):
+                r2_ok = False
+            if not any(True for s in steps if s.get("requirement") == "R4"):
+                r4_ok = False
+            if result.get("epistemic_trace") is None:
+                r5_ok = False
+
+            per_row_summary.append({
+                "index": row.get("index", "?"),
+                "status": status,
+                "pramana": pramana,
+                "accepted": result.get("accepted", False),
+                "trace_steps": len(steps),
+                "rule_id": result.get("rule_id"),
+                "trace": trace,
+            })
 
         total = max(len(rows), 1)
         score = round((status_counts["valid"] + 0.6 * status_counts["suspended"] + 0.2 * status_counts["unjustified"]) / total, 3)
@@ -920,12 +1057,17 @@ def create_app() -> Flask:
             {
                 "total": len(rows),
                 "status_counts": status_counts,
+                "pramana_distribution": pramana_dist,
                 "quality_score": score,
+                "per_row": per_row_summary,
                 "checklist": {
+                    "R1_proposition_representation": r1_ok,
+                    "R2_epistemic_justification": r2_ok,
+                    "R3_status_distinction": True,
+                    "R4_invalid_patterns_rejected": r4_ok,
+                    "R5_machine_readable_traces": r5_ok,
                     "inspectable_reasoning": True,
                     "epistemic_constraints_enforced": True,
-                    "invalid_patterns_rejected": True,
-                    "machine_readable_traces": True,
                 },
             }
         )
@@ -950,6 +1092,7 @@ def create_app() -> Flask:
         return jsonify({"question": question, "results": results, "count": len(results)})
 
     @app.post("/api/rag/answer")
+    @limiter.limit("60 per hour")
     def rag_answer():
         """Answer question using full RAG pipeline (retrieval + LLM + verification)."""
         payload = request.get_json(silent=True) or {}
@@ -960,6 +1103,8 @@ def create_app() -> Flask:
 
         if not question:
             return jsonify({"error": "question is required."}), 400
+        if len(question) > 2000:
+            return jsonify({"error": "question must be ≤2000 characters."}), 400
 
         try:
             pipeline = get_rag_pipeline()
@@ -974,7 +1119,8 @@ def create_app() -> Flask:
             )
             return jsonify(result)
         except Exception as e:
-            return jsonify({"error": f"RAG pipeline error: {str(e)}"}), 500
+            _logger.exception("RAG pipeline error for question=%r", question)
+            return jsonify({"error": "Processing failed. See server logs."}), 500
 
     @app.post("/api/rag/cache/clear")
     def rag_clear_caches():
@@ -1027,9 +1173,11 @@ def create_app() -> Flask:
             )
             return jsonify(explanation)
         except Exception as e:
-            return jsonify({"error": f"Explanation generation failed: {str(e)}"}), 500
+            _logger.exception("Explanation generation failed for question=%r", question)
+            return jsonify({"error": "Processing failed. See server logs."}), 500
 
     @app.post("/api/rag/batch")
+    @limiter.limit("20 per hour")
     def rag_batch():
         """Answer multiple questions efficiently with shared cache."""
         payload = request.get_json(silent=True) or {}
@@ -1043,6 +1191,11 @@ def create_app() -> Flask:
         if len(questions) > 50:
             return jsonify({"error": "Batch size limited to 50 questions."}), 400
 
+        # Per-question length guard
+        oversized = [i for i, q in enumerate(questions) if isinstance(q, str) and len(q) > 2000]
+        if oversized:
+            return jsonify({"error": f"Questions at indices {oversized} exceed 2000-character limit."}), 400
+
         try:
             pipeline = get_rag_pipeline()
             if not pipeline._initialized:
@@ -1055,7 +1208,8 @@ def create_app() -> Flask:
                 "succeeded": len([r for r in results if "error" not in r]),
             })
         except Exception as e:
-            return jsonify({"error": f"Batch processing failed: {str(e)}"}), 500
+            _logger.exception("Batch processing failed (%d questions)", len(questions))
+            return jsonify({"error": "Processing failed. See server logs."}), 500
 
     @app.get("/api/rag/status")
     def rag_status():
@@ -1087,7 +1241,33 @@ def create_app() -> Flask:
             "llm_model": active_llm_model or configured_llm_model or "unknown",
             "llm_model_configured": configured_llm_model,
             "status": "ready" if (initialized and llm_healthy) else "setup_needed",
+            "demo_mode": get_config().api.demo_mode,
         })
+
+    # ── Pre-warming: load vector store + LLM in background to avoid 15-second
+    # cold start on the first real user request. Skipped during pytest runs
+    # (PYTEST_CURRENT_TEST is set automatically by pytest) so tests are unaffected.
+    if not os.environ.get("PYTEST_CURRENT_TEST"):
+        def _prewarm() -> None:
+            try:
+                pipeline = get_rag_pipeline()
+                if not pipeline._initialized:
+                    pipeline.initialize()
+                if pipeline.llm_engine is not None:
+                    try:
+                        pipeline.llm_engine.generate_answer(
+                            question="ping",
+                            context_chunks=[{"text": "warmup", "id": "warmup"}],
+                        )
+                    except Exception:
+                        pass  # warmup failure is non-fatal
+            except Exception as exc:
+                import logging
+                logging.getLogger("pramana.api").warning(
+                    "Background pre-warm failed (non-fatal): %s", exc
+                )
+
+        threading.Thread(target=_prewarm, name="pramana-prewarm", daemon=True).start()
 
     return app
 
@@ -1096,5 +1276,7 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    import os
-    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1")
+    # Development only: use `gunicorn` or `flask run --debug` for production/dev servers.
+    # Debug mode is intentionally NOT controllable via environment variable here to prevent
+    # accidental activation in deployed environments.
+    app.run(host="0.0.0.0", port=5000, debug=False)

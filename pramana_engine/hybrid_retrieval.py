@@ -23,6 +23,28 @@ _KB_INDEX_LOCK = RLock()
 _KB_INDEX_SIGNATURE: Optional[Tuple[int, int, str]] = None
 _KB_INDEX: List[Dict[str, Any]] = []
 
+# Query expansion: maps common English/Sanskrit terms to synonyms so paraphrased
+# questions match the same knowledge-base chunks as canonical phrasing.
+_QUERY_SYNONYMS: Dict[str, List[str]] = {
+    "smoke": ["dhuma", "vapour", "vapor"],
+    "fire": ["agni", "flames", "burning"],
+    "perception": ["pratyaksha", "pratyaksa", "direct", "sense", "sensory"],
+    "inference": ["anumana", "hetu", "vyapti", "reason", "inferential"],
+    "testimony": ["shabda", "sabda", "verbal", "authority", "scriptural"],
+    "comparison": ["upamana", "analogy", "similar", "similarity"],
+    "postulation": ["arthapatti", "presumption", "assume", "presuppose"],
+    "absence": ["anupalabdhi", "abhava", "non-perception", "non perception"],
+    "knowledge": ["prama", "cognition", "valid", "epistemology"],
+    "fallacy": ["hetvabhasa", "viruddha", "savyabhicara", "invalid reason"],
+    "syllogism": ["pancavayava", "avayava", "five member"],
+    "hill": ["parvata", "mountain"],
+    "river": ["nadi", "stream", "flood"],
+    "cow": ["dhenu", "gavaya"],
+    "debate": ["vada", "jalpa", "vitanda", "discussion"],
+    "doubt": ["samsaya", "uncertainty"],
+    "error": ["viparyaya", "illusion", "mistake"],
+}
+
 
 def _normalize_question(question: str) -> str:
     return " ".join((question or "").strip().lower().split())
@@ -117,30 +139,39 @@ def _get_knowledge_index() -> List[Dict[str, Any]]:
 def reciprocal_rank_fusion(
     keyword_results: List[Dict[str, Any]],
     semantic_results: List[Dict[str, Any]],
-    k: float = 60.0
+    k: float = 60.0,
+    semantic_weight: float = 0.6,
 ) -> List[Dict[str, Any]]:
     """
-    Combine keyword and semantic results using reciprocal rank fusion with error handling.
-    
-    RRF formula: score = sum(1 / (k + rank))
-    
+    Combine keyword and semantic results using weighted reciprocal rank fusion.
+
+    Weighted RRF formula:
+        score = (1 - alpha) / (k + keyword_rank) + alpha / (k + semantic_rank)
+
+    where alpha = semantic_weight (0.0 = keyword-only, 1.0 = semantic-only).
+
     Args:
         keyword_results: Results from keyword search
         semantic_results: Results from semantic search
-        k: Constant (default 60)
-        
+        k: RRF constant (higher k dampens rank differences)
+        semantic_weight: Weight for semantic results (0.0–1.0); keyword gets 1 - semantic_weight
+
     Returns:
         Fused and ranked results
-        
+
     Raises:
         ValueError: If inputs are invalid
     """
     try:
         if not isinstance(keyword_results, list) or not isinstance(semantic_results, list):
             raise ValueError("Results must be lists")
-        
+
+        alpha = max(0.0, min(1.0, semantic_weight))
+        kw_weight = 1.0 - alpha
+
         id_to_result: Dict[str, Dict[str, Any]] = {}
-        id_to_scores: Dict[str, List[float]] = {}
+        id_to_fused: Dict[str, float] = {}
+        id_to_sources: Dict[str, set] = {}
 
         # Process keyword results
         for rank, result in enumerate(keyword_results, 1):
@@ -148,13 +179,12 @@ def reciprocal_rank_fusion(
             if not result_id:
                 logger_retrieval.warning(f"Skipping keyword result without ID: {result}")
                 continue
-            
             if result_id not in id_to_result:
                 id_to_result[result_id] = result.copy()
-                id_to_scores[result_id] = []
-
-            rrf_score = 1.0 / (k + rank)
-            id_to_scores[result_id].append(rrf_score)
+                id_to_fused[result_id] = 0.0
+                id_to_sources[result_id] = set()
+            id_to_fused[result_id] += kw_weight / (k + rank)
+            id_to_sources[result_id].add("keyword")
 
         # Process semantic results
         for rank, result in enumerate(semantic_results, 1):
@@ -162,26 +192,26 @@ def reciprocal_rank_fusion(
             if not result_id:
                 logger_retrieval.warning(f"Skipping semantic result without ID: {result}")
                 continue
-            
             if result_id not in id_to_result:
                 id_to_result[result_id] = result.copy()
-                id_to_scores[result_id] = []
-
-            rrf_score = 1.0 / (k + rank)
-            id_to_scores[result_id].append(rrf_score)
+                id_to_fused[result_id] = 0.0
+                id_to_sources[result_id] = set()
+            id_to_fused[result_id] += alpha / (k + rank)
+            id_to_sources[result_id].add("semantic")
 
         # Calculate fused scores and rank
         fused_results = []
         for result_id, result in id_to_result.items():
-            fused_score = sum(id_to_scores[result_id])
-            result["fused_score"] = round(fused_score, 4)
-            result["sources"] = "keyword+semantic" if len(id_to_scores[result_id]) > 1 else ("semantic" if "distance" in result else "keyword")
+            result["fused_score"] = round(id_to_fused[result_id], 4)
+            srcs = id_to_sources[result_id]
+            result["sources"] = "keyword+semantic" if len(srcs) > 1 else next(iter(srcs))
             fused_results.append(result)
 
-        # Sort by fused score descending
         fused_results.sort(key=lambda x: x["fused_score"], reverse=True)
-        
-        logger_retrieval.debug(f"RRF fused {len(fused_results)} unique results")
+        logger_retrieval.debug(
+            "Weighted RRF fused %d unique results (k=%.0f, semantic_weight=%.2f)",
+            len(fused_results), k, alpha,
+        )
         return fused_results
     except Exception as e:
         logger_retrieval.error(f"✗ RRF fusion failed: {e}", exc_info=True)
@@ -228,10 +258,16 @@ def hybrid_search(
         semantic_results = vector_store.search(question, k=k * 2)
         logger_retrieval.debug(f"Semantic results: {len(semantic_results)}")
 
-        # ===== KEYWORD SEARCH (EXISTING) =====
+        # ===== KEYWORD SEARCH WITH QUERY EXPANSION =====
         keyword_results = []
         question_tokens = _tokenize(question)
-        q_set = set(question_tokens)
+        # Expand tokens with Nyaya/Sanskrit synonyms so paraphrased questions
+        # match the same chunks as their canonical equivalents.
+        expanded: set = set(question_tokens)
+        for tok in question_tokens:
+            for syn in _QUERY_SYNONYMS.get(tok, []):
+                expanded.update(_tokenize(syn))
+        q_set = expanded
         pramana_set = set(normalized_pramanas)
 
         indexed_chunks = _get_knowledge_index()
@@ -268,15 +304,33 @@ def hybrid_search(
         keyword_results = keyword_results[:k * 2]
         logger_retrieval.debug(f"Keyword results: {len(keyword_results)}")
 
-        # ===== FUSION (Reciprocal Rank Fusion) =====
-        fused = reciprocal_rank_fusion(keyword_results, semantic_results, k=60.0)
+        # ===== FUSION (Weighted Reciprocal Rank Fusion) =====
+        cfg = get_config().retrieval
+        fused = reciprocal_rank_fusion(
+            keyword_results,
+            semantic_results,
+            k=cfg.reciprocal_rank_k,
+            semantic_weight=cfg.semantic_weight,
+        )
         logger_retrieval.debug(f"Fused results: {len(fused)}")
 
         # ===== FILTER BY PRAMANA =====
-        filtered_results = [
-            r for r in fused
-            if set(r.get("supports", [])).intersection(pramana_set)
-        ]
+        # Keep results that either (a) explicitly support at least one requested
+        # pramana, OR (b) have no 'supports' metadata at all — semantic-only results
+        # from FAISS lack this field and must not be silently dropped.
+        filtered_results = []
+        for r in fused:
+            supports = r.get("supports")
+            if supports is None or not supports or set(supports).intersection(pramana_set):
+                filtered_results.append(r)
+
+        if not filtered_results and fused:
+            logger_retrieval.warning(
+                "Post-fusion pramana filter removed all %d results for pramanas=%s; "
+                "returning top-%d fused results unfiltered.",
+                len(fused), sorted(pramana_set), k,
+            )
+            filtered_results = fused
 
         final_results = filtered_results[:k]
         _cache_set(cache_key, final_results)

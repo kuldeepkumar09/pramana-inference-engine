@@ -9,23 +9,31 @@ from __future__ import annotations
 import re
 import time
 import unicodedata
-from collections import OrderedDict
 from typing import List, Dict, Any, Tuple, Optional
 import json
 
-from .hybrid_retrieval import hybrid_search, rerank_by_target_pramana
+from .hybrid_retrieval import clear_hybrid_retrieval_cache, hybrid_search, rerank_by_target_pramana
 from .llm_integration import get_llm_engine
 from .vector_store import get_vector_store, initialize_vector_store
-from .qa_solver import _load_external_knowledge_base, KNOWLEDGE_BASE, _run_symbolic_verifier, get_external_corpus_version
+from .qa_solver import _load_external_knowledge_base, KNOWLEDGE_BASE, _run_symbolic_verifier
 from .config import get_config
 from .logging_setup import logger_pipeline
 
 
+# High-frequency domain words that appear in almost every Nyaya passage and therefore
+# do not discriminate between specific answers. Excluded from evidence overlap gating
+# (IDF-lite approach: treat near-universal corpus terms as stopwords).
+_DOMAIN_STOPWORDS = {
+    "pramana", "knowledge", "valid", "invalid", "inference", "reason", "evidence",
+    "nyaya", "means", "also", "other", "through", "about", "using", "system",
+    "philosophy", "truth", "classical", "indian", "form", "called", "type", "kind",
+    "based", "derived", "source", "object", "subject", "term", "name", "word",
+}
 _ANSWER_STOPWORDS = {
     "a", "an", "and", "are", "as", "at", "be", "because", "by", "for", "from", "has", "have",
     "how", "in", "is", "it", "its", "of", "on", "or", "that", "the", "their", "there", "they",
     "this", "to", "was", "were", "what", "when", "where", "which", "who", "why", "with", "you",
-}
+} | _DOMAIN_STOPWORDS
 
 _HETVABHASA_ALIASES: Dict[str, Tuple[str, ...]] = {
     "savyabhicara": ("savyabhicara", "anaikantika", "vyabhicari"),
@@ -55,6 +63,19 @@ _NYAYA_DEBATE_MODE_ALIASES: Dict[str, Tuple[str, ...]] = {
 _NYAYA_DEBATE_MODE_CORE_LABELS = tuple(_NYAYA_DEBATE_MODE_ALIASES.keys())
 
 
+def _sentence_boundary_excerpt(text: str, max_chars: int) -> str:
+    """Return up to max_chars of text, truncated at a sentence boundary where possible."""
+    if len(text) <= max_chars:
+        return text
+    window = text[:max_chars]
+    # Find the last sentence-ending punctuation within the window
+    for sep in (". ", "! ", "? ", ".\n"):
+        idx = window.rfind(sep)
+        if idx > max_chars // 2:
+            return window[: idx + 1]
+    return window
+
+
 class RAGPipeline:
     """Full RAG pipeline with production error handling and persistence."""
 
@@ -65,43 +86,12 @@ class RAGPipeline:
             self.llm_engine = get_llm_engine()
             self.vector_store = None
             self._initialized = False
-            self._retrieval_cache: "OrderedDict[Tuple[str, Tuple[str, ...], int, str], Tuple[float, List[Dict[str, Any]]]]" = OrderedDict()
-            config = get_config()
-            configured_max = int(config.retrieval.cache_max_entries)
-            configured_ttl = int(config.retrieval.cache_ttl_seconds)
-            self._retrieval_cache_max = max(8, configured_max)
-            self._retrieval_cache_ttl_seconds = max(1, configured_ttl)
-            if configured_max < 8:
-                logger_pipeline.warning(f"cache_max_entries={configured_max} is below minimum 8; using 8.")
-            if configured_ttl < 1:
-                logger_pipeline.warning(f"cache_ttl_seconds={configured_ttl} is below minimum 1; using 1.")
+            # Retrieval caching is handled by hybrid_retrieval._HYBRID_CACHE.
+            # No duplicate cache here.
             logger_pipeline.info("✓ RAG pipeline created (not yet initialized)")
         except Exception as e:
             logger_pipeline.error(f"✗ Failed to create RAG pipeline: {e}", exc_info=True)
             raise RuntimeError(f"RAG pipeline creation failed: {e}")
-
-    @staticmethod
-    def _normalize_query_key(
-        question: str,
-        pramana_types: Optional[List[str]],
-        k: int,
-        corpus_version: str,
-    ) -> Tuple[str, Tuple[str, ...], int, str]:
-        normalized_question = " ".join((question or "").strip().lower().split())
-        if pramana_types is None:
-            normalized_pramanas = ("perception", "inference", "testimony", "comparison", "postulation")
-        else:
-            seen = set()
-            values: List[str] = []
-            for item in pramana_types:
-                if not isinstance(item, str):
-                    continue
-                value = item.strip().lower()
-                if value and value not in seen:
-                    values.append(value)
-                    seen.add(value)
-            normalized_pramanas = tuple(values) if values else ("perception", "inference", "testimony", "comparison", "postulation")
-        return normalized_question, normalized_pramanas, int(k), corpus_version
 
     @staticmethod
     def _normalize_text(text: str) -> str:
@@ -124,11 +114,20 @@ class RAGPipeline:
         if len(answer_tokens) == 0:
             return False
         evidence_tokens: set[str] = set()
-        for chunk in chunks[:3]:
+        # Examine top-5 chunks (up from 3) for better domain vocabulary coverage —
+        # relevant Nyaya terms may be spread across multiple retrieved passages.
+        for chunk in chunks[:5]:
             evidence_tokens.update(cls._content_tokens(chunk.get("text", "")))
         overlap = answer_tokens & evidence_tokens
-        # Single-token answer: only needs 1 match; multi-token: needs 2
-        required_overlap = 1 if len(answer_tokens) == 1 else 2
+        # Tiered overlap requirement: single-token answers need 1 match; short
+        # answers (≤3 content tokens) need 2; longer answers need 3 — preventing
+        # hallucinated responses that incidentally share 2 generic domain words.
+        if len(answer_tokens) <= 1:
+            required_overlap = 1
+        elif len(answer_tokens) <= 3:
+            required_overlap = 2
+        else:
+            required_overlap = 3
         return len(overlap) >= required_overlap
 
     @classmethod
@@ -478,27 +477,12 @@ class RAGPipeline:
         pramana_types: Optional[List[str]],
         k: int,
     ) -> List[Dict[str, Any]]:
-        corpus_version = get_external_corpus_version()
-        key = self._normalize_query_key(question, pramana_types, k, corpus_version)
-        payload = self._retrieval_cache.get(key)
-        if payload is not None:
-            created_at, cached = payload
-            if (time.monotonic() - created_at) <= self._retrieval_cache_ttl_seconds:
-                self._retrieval_cache.move_to_end(key)
-                logger_pipeline.debug("Retrieval cache hit")
-                return [chunk.copy() for chunk in cached]
-            del self._retrieval_cache[key]
-
-        results = hybrid_search(question=question, pramana_types=pramana_types, k=k)
-        self._retrieval_cache[key] = (time.monotonic(), [chunk.copy() for chunk in results])
-        self._retrieval_cache.move_to_end(key)
-        if len(self._retrieval_cache) > self._retrieval_cache_max:
-            self._retrieval_cache.popitem(last=False)
-        return results
+        # hybrid_retrieval has its own LRU+TTL cache; no duplicate layer here.
+        return hybrid_search(question=question, pramana_types=pramana_types, k=k)
 
     def clear_runtime_caches(self) -> None:
         """Clear runtime caches to force cold-path profiling and debugging."""
-        self._retrieval_cache.clear()
+        clear_hybrid_retrieval_cache()
 
     def initialize(self) -> bool:
         """
@@ -592,6 +576,16 @@ class RAGPipeline:
 
             logger_pipeline.debug(f"Retrieved {len(retrieved_chunks)} chunks")
 
+            # ===== COVERAGE SIGNAL (surfaced in response regardless of path) =====
+            top_score = max((c.get("fused_score", 0.0) for c in retrieved_chunks), default=0.0)
+            low_coverage = len(retrieved_chunks) < 3 or top_score < 0.15
+
+            # ===== DEMO MODE: fast LLM-free symbolic path =====
+            # Activated by PRAMANA_DEMO_MODE=1 env var. Returns same schema as normal path.
+            if get_config().api.demo_mode:
+                logger_pipeline.info("Demo mode active — using symbolic path (no LLM).")
+                return self._build_demo_response(question, retrieved_chunks, pramana_types, low_coverage)
+
             # ===== STEP 2: LLM REASONING =====
             llm_answer = None
             reasoning_trace = None
@@ -663,7 +657,7 @@ class RAGPipeline:
                     "id": chunk["id"],
                     "source": chunk.get("source", "unknown"),
                     "score": chunk.get("fused_score", chunk.get("score", 0)),
-                    "excerpt": chunk["text"][:200],
+                    "excerpt": _sentence_boundary_excerpt(chunk["text"], 500),
                 }
                 for chunk in retrieved_chunks[:5]
             ]
@@ -676,9 +670,9 @@ class RAGPipeline:
                     question=question,
                     answer_text=answer_text,
                     citations=citations,
-                    rule_match={"score": 0.85} if answer_source == "llm_reasoning" else None,
+                    rule_match=None,        # RAG pipeline uses retrieval, not symbolic rules
                     used_rule_bank=False,
-                    option_scores=[{"score": 0.85}, {"score": 0.45}],
+                    option_scores=citations, # Actual retrieval scores drive ambiguity computation
                 )
             except Exception as e:
                 logger_pipeline.warning(f"Verifier failed: {e}, using default scores")
@@ -690,19 +684,30 @@ class RAGPipeline:
                 }
 
             # ===== BUILD RESPONSE =====
+            raw_status = verifier.get("belief_revision", {}).get("final_status", "justified")
+            # When evidence is sparse and no LLM is available, do not mislead with "justified"
+            if low_coverage and not self.llm_engine:
+                raw_status = "suspended"
+
             response = {
                 "question": question,
                 "answer": answer_text,
                 "answer_source": answer_source,
                 "confidence": verifier.get("confidence_decomposition", {}).get("final_confidence", 0.75),
-                "epistemic_status": verifier.get("belief_revision", {}).get("final_status", "justified"),
+                "epistemic_status": raw_status,
                 "rag_chunks": self._format_rag_chunks(retrieved_chunks),
                 "verifier": {
                     "constraints": verifier.get("constraints", []),
                     "violated": verifier.get("violated_constraints", []),
-                    "final_status": verifier.get("belief_revision", {}).get("final_status", "justified"),
+                    "final_status": raw_status,
                 },
                 "reasoning": reasoning_trace,
+                "retrieval_meta": {
+                    "chunk_count": len(retrieved_chunks),
+                    "top_score": round(top_score, 3),
+                    "low_coverage": low_coverage,
+                    "coverage_warning": "Evidence sparse — treat with caution." if low_coverage else None,
+                },
             }
 
             if use_reasoning_chain and reasoning_trace:
@@ -734,6 +739,51 @@ class RAGPipeline:
                 "sources": chunk.get("sources", "unknown"),
             })
         return formatted
+
+    def _build_demo_response(
+        self,
+        question: str,
+        chunks: List[Dict[str, Any]],
+        pramana_types: Optional[List[str]],
+        low_coverage: bool,
+    ) -> Dict[str, Any]:
+        """LLM-free structured response for demo/offline environments (PRAMANA_DEMO_MODE=1).
+
+        Delegates to the QA symbolic solver for answer + epistemic status, then merges
+        with retrieved chunks so the response schema is identical to the normal path.
+        """
+        from .qa_solver import solve_question as _solve
+        try:
+            qa = _solve(question)
+            answer_text = qa.get("answer_text", "")
+            confidence = float(qa.get("confidence", 0.5))
+            ep_status = qa.get("epistemic_status", "suspended")
+        except Exception:
+            answer_text = "Demo mode: symbolic solver could not determine answer."
+            confidence = 0.3
+            ep_status = "suspended"
+
+        if low_coverage and ep_status not in ("suspended", "invalid"):
+            ep_status = "suspended"
+
+        top_score = max((c.get("fused_score", 0.0) for c in chunks), default=0.0)
+        return {
+            "question": question,
+            "answer": answer_text,
+            "answer_source": "demo_symbolic",
+            "demo_mode": True,
+            "confidence": confidence,
+            "epistemic_status": ep_status,
+            "rag_chunks": self._format_rag_chunks(chunks),
+            "verifier": {"constraints": [], "violated": [], "final_status": ep_status},
+            "reasoning": None,
+            "retrieval_meta": {
+                "chunk_count": len(chunks),
+                "top_score": round(top_score, 3),
+                "low_coverage": low_coverage,
+                "coverage_warning": "Evidence sparse — treat with caution." if low_coverage else None,
+            },
+        }
 
     def search_only(
         self,

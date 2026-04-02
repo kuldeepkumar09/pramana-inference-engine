@@ -1,9 +1,11 @@
 """
 Structured logging setup for production RAG pipeline.
+Supports plain-text (default) and JSON (LOG_FORMAT=json) output formats.
 """
 
 from __future__ import annotations
 
+import json as _json
 import logging
 import logging.handlers
 import os
@@ -53,6 +55,27 @@ class ConsoleSafeFormatter(ProductionFormatter):
         return message
 
 
+class JsonFormatter(logging.Formatter):
+    """Structured JSON log formatter for log aggregation pipelines.
+
+    Enable with environment variable: LOG_FORMAT=json
+    Each line is a valid JSON object with timestamp, level, logger, message, module, line.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        return _json.dumps(
+            {
+                "timestamp": self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
+                "level": record.levelname,
+                "logger": record.name,
+                "message": record.getMessage(),
+                "module": record.module,
+                "line": record.lineno,
+            },
+            ensure_ascii=False,
+        )
+
+
 class RAGLogger:
     """Centralized logger for RAG pipeline."""
 
@@ -90,7 +113,8 @@ class RAGLogger:
             encoding="utf-8",
         )
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(ProductionFormatter())
+        file_fmt_cls = JsonFormatter if config.logging.log_format == "json" else ProductionFormatter
+        file_handler.setFormatter(file_fmt_cls())
         self.logger.addHandler(file_handler)
 
         # Console handler

@@ -7,6 +7,9 @@ from __future__ import annotations
 
 from typing import Dict
 
+# Increment when any prompt text changes so logs can track prompt drift.
+PROMPTS_VERSION = "1.1.0"
+
 
 NYAYA_SYSTEM_PROMPT = """You are an expert assistant in Nyaya philosophy and epistemology (pramana).
 

@@ -174,3 +174,29 @@ def test_weighted_pramana_calibration_changes_outcome():
 
     assert neutral.status == InferenceStatus.VALID
     assert strict.status in {InferenceStatus.SUSPENDED, InferenceStatus.UNJUSTIFIED}
+
+
+def test_vyapti_based_inference_trace_mentions_vyapti():
+    """The logical_pattern_check trace reason must identify vyapti, not generic modus ponens."""
+    evidence = {
+        "E1": Evidence("E1", Proposition.atom("smoke"), "inference", 0.9, "observation"),
+        "E2": Evidence("E2", Proposition.implies("smoke", "fire"), "inference", 0.9, "vyapti_rule"),
+    }
+    rules = {
+        "R_vyapti": Rule(
+            rule_id="R_vyapti",
+            name="Vyapti Inference",
+            pattern="vyapti_based_inference",
+            required_pramanas=["inference"],
+            min_reliability=0.7,
+        )
+    }
+    engine = PramanaInferenceEngine(evidence, rules)
+    result = engine.infer(
+        InferenceRequest("R_vyapti", ["E1", "E2"], Proposition.atom("fire"))
+    )
+    assert result.status == InferenceStatus.VALID
+    logical_step = next(
+        s for s in result.trace["steps"] if s["stage"] == "logical_pattern_check"
+    )
+    assert "vyapti" in logical_step["reason"].lower()

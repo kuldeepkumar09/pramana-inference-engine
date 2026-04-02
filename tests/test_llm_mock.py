@@ -26,7 +26,7 @@ def _make_llm_engine(model_name: str = "phi3:mini", temperature: float = 0.0):
     # default generate response
     mock_client.generate.return_value = {"response": "ANSWER: B\nREASON: Pratyaksha is direct perception."}
 
-    with patch("ollama.Client", return_value=mock_client):
+    with patch("pramana_engine.llm_integration.Client", return_value=mock_client):
         from pramana_engine.llm_integration import MistralLLMEngine
         engine = MistralLLMEngine(model_name=model_name, temperature=temperature)
     engine.client = mock_client

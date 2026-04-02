@@ -290,7 +290,10 @@ def test_hybrid_search_uses_cache_on_repeat(monkeypatch):
     assert calls["semantic"] == 1
 
 
-def test_pipeline_retrieval_cache_avoids_duplicate_hybrid_calls(monkeypatch):
+def test_pipeline_retrieval_delegates_to_hybrid_search(monkeypatch):
+    # Pipeline-level cache was removed (M10). Caching is now handled entirely
+    # by hybrid_retrieval._HYBRID_CACHE. Each pipeline call passes through to
+    # hybrid_search; deduplication happens inside hybrid_retrieval's own LRU cache.
     pipeline = RAGPipeline()
     pipeline._initialized = True
 
@@ -315,7 +318,8 @@ def test_pipeline_retrieval_cache_avoids_duplicate_hybrid_calls(monkeypatch):
     b = pipeline.search_only("Why is vyapti needed?", ["inference"], k=5)
 
     assert a == b
-    assert calls["hybrid"] == 1
+    # Pipeline delegates every call to hybrid_search (caching is inside hybrid_retrieval)
+    assert calls["hybrid"] == 2
 
 
 def test_hybrid_search_cache_invalidates_when_corpus_version_changes(monkeypatch):
@@ -350,7 +354,10 @@ def test_hybrid_search_cache_invalidates_when_corpus_version_changes(monkeypatch
     assert calls["semantic"] == 2
 
 
-def test_pipeline_cache_invalidates_when_corpus_version_changes(monkeypatch):
+def test_pipeline_always_delegates_to_hybrid_search(monkeypatch):
+    # Pipeline-level cache was removed (M10). Corpus-version-aware caching is
+    # now entirely inside hybrid_retrieval._HYBRID_CACHE. Every pipeline call
+    # passes straight to hybrid_search regardless of corpus version.
     pipeline = RAGPipeline()
     pipeline._initialized = True
 
@@ -360,8 +367,6 @@ def test_pipeline_cache_invalidates_when_corpus_version_changes(monkeypatch):
         calls["hybrid"] += 1
         return [{"id": "X1", "text": "chunk", "supports": ["inference"], "fused_score": 0.7}]
 
-    versions = iter(["v1", "v2"])
-    monkeypatch.setattr("pramana_engine.rag_pipeline.get_external_corpus_version", lambda: next(versions))
     monkeypatch.setattr("pramana_engine.rag_pipeline.hybrid_search", fake_hybrid_search)
 
     pipeline.search_only("why vyapti", ["inference"], k=3)
@@ -849,3 +854,22 @@ def test_pipeline_rejects_debate_mode_llm_answer_with_wrong_mode(monkeypatch):
 
     assert result["answer_source"] == "symbolic_fallback"
     assert "Vada" in result["answer"]
+
+
+def test_hybrid_search_keeps_semantic_only_results(monkeypatch):
+    """FAISS semantic results without a 'supports' field must survive the post-fusion filter."""
+    clear_hybrid_retrieval_cache()
+
+    class FakeVectorStore:
+        def search(self, query, k=10):
+            # Semantic result has no 'supports' key — simulates raw FAISS output.
+            return [{"id": "SEM1", "text": "Anumana is inference-based pramana.", "distance": 0.1}]
+
+    monkeypatch.setattr(hybrid_mod, "get_vector_store", lambda: FakeVectorStore())
+    monkeypatch.setattr(hybrid_mod, "_get_knowledge_index", lambda: [])
+
+    results = hybrid_mod.hybrid_search("anumana inference", ["inference"], k=5)
+    ids = [r["id"] for r in results]
+    assert "SEM1" in ids, (
+        "Semantic-only result without 'supports' field was incorrectly dropped by the post-fusion filter"
+    )

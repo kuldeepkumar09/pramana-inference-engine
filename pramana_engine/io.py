@@ -284,6 +284,11 @@ def _proposition_from_dict(raw: Dict[str, Any]) -> Proposition:
             raise ValueError("implies proposition requires non-empty 'antecedent'.")
         if not isinstance(consequent, str) or not consequent:
             raise ValueError("implies proposition requires non-empty 'consequent'.")
+        if antecedent == consequent:
+            raise ValueError(
+                f"Tautological implication '{antecedent} → {consequent}' is not a valid hetu "
+                "(antecedent and consequent must differ)."
+            )
         return Proposition.implies(antecedent, consequent)
 
     raise ValueError("proposition 'kind' must be 'atom' or 'implies'.")
@@ -303,11 +308,17 @@ def _rule_from_dict(raw: Dict[str, Any]) -> Rule:
 
 
 def _evidence_from_dict(raw: Dict[str, Any]) -> Evidence:
+    reliability = float(raw["reliability"])
+    if not (0.0 <= reliability <= 1.0):
+        raise ValueError(
+            f"Evidence '{raw.get('evidence_id', '?')}' has reliability={reliability}; "
+            "must be in [0.0, 1.0]."
+        )
     return Evidence(
         evidence_id=raw["evidence_id"],
         proposition=_proposition_from_dict(raw["proposition"]),
         pramana=raw["pramana"],
-        reliability=float(raw["reliability"]),
+        reliability=reliability,
         source=raw["source"],
         defeated=bool(raw.get("defeated", False)),
         metadata=dict(raw.get("metadata", {})),

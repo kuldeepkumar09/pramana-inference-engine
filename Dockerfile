@@ -27,4 +27,4 @@ USER pramana
 ENV PYTHONUNBUFFERED=1
 EXPOSE 5000
 
-CMD ["python", "-m", "pramana_engine.web"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "--timeout", "180", "--access-logfile", "-", "pramana_engine.web:app"]

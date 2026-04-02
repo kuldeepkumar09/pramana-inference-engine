@@ -15,6 +15,9 @@
   --border: #d9c7a8;
   --accent: #b75014;
   --focus: #d88d2a;
+  --green: #2d7a3e;
+  --red: #b52c2c;
+  --orange: #c07a10;
 }
 
 * { box-sizing: border-box; }
@@ -30,10 +33,7 @@ body {
     linear-gradient(160deg, #fbf5eb, var(--bg));
 }
 
-.wrap {
-  width: min(1040px, 96vw);
-  margin: 20px auto 28px;
-}
+.wrap { width: min(1040px, 96vw); margin: 20px auto 28px; }
 
 .card {
   background: var(--panel);
@@ -44,131 +44,83 @@ body {
   margin-bottom: 14px;
 }
 
-h1 {
-  margin: 0 0 8px;
-  font: 700 24px "Cinzel", serif;
-  color: var(--accent);
-}
+h1 { margin: 0 0 8px; font: 700 24px "Cinzel", serif; color: var(--accent); }
+h2 { margin: 0 0 10px; font: 700 16px "Cinzel", serif; color: var(--accent); }
+h3 { margin: 0 0 8px; font: 700 13px "Cinzel", serif; color: #7b2949; }
 
-.sub {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
+.sub { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 
-.nav {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 12px;
-}
-
+.nav { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; }
 .nav a { color: #8e4e18; text-decoration: none; }
 .nav a:hover { text-decoration: underline; }
 
-.guide {
-  margin-top: 12px;
-  border: 1px solid #e8d4b2;
-  border-radius: 10px;
-  padding: 10px;
-  background: linear-gradient(135deg, #fff8ea, #fffdf8);
-}
+.guide { margin-top: 12px; border: 1px solid #e8d4b2; border-radius: 10px; padding: 10px; background: linear-gradient(135deg, #fff8ea, #fffdf8); }
+.guide ol { margin: 0; padding-left: 18px; line-height: 1.5; font-size: 12px; color: #4f4134; }
 
-.guide h3 {
-  margin: 0 0 6px;
-  font: 700 13px "Cinzel", serif;
-  color: #7b2949;
-}
+label { display:block; margin-bottom:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color: var(--muted); }
 
-.guide ol {
-  margin: 0;
-  padding-left: 18px;
-  line-height: 1.5;
-  font-size: 12px;
-  color: #4f4134;
-}
+input { width:100%; padding:9px 10px; border:1px solid var(--border); border-radius:8px; background:#fffefb; color:var(--ink); font:13px "JetBrains Mono",monospace; }
+input:focus { outline:none; border-color:var(--focus); box-shadow:0 0 0 3px rgba(216,141,42,.18); }
 
-label {
-  display:block;
-  margin-bottom:8px;
-  font-size: 11px;
-  font-weight:700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--muted);
-}
+button { margin-top:10px; background:linear-gradient(120deg,#c85a14,#8f2f15); color:#fff; border:0; padding:11px 14px; border-radius:10px; cursor:pointer; font:700 13px "JetBrains Mono",monospace; }
+button:hover { filter:brightness(1.07); }
 
-input, button, textarea { font-size:14px; }
+.hint { margin-top:6px; font-size:11px; color:#7a6957; }
 
-input {
-  width: 100%;
-  padding: 9px 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #fffefb;
-  color: var(--ink);
-  font: 13px "JetBrains Mono", monospace;
-}
+pre { background:#181511; color:#f0dec0; padding:12px; overflow:auto; border-radius:8px; max-height:340px; font-size:11px; }
 
-input:focus {
-  outline: none;
-  border-color: var(--focus);
-  box-shadow: 0 0 0 3px rgba(216, 141, 42, 0.18);
-}
-
-button {
-  margin-top: 10px;
-  background: linear-gradient(120deg, #c85a14, #8f2f15);
-  color:#fff;
-  border:0;
-  padding:11px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font: 700 13px "JetBrains Mono", monospace;
-}
-
-button:hover { filter: brightness(1.07); }
-
-.hint {
-  margin-top: 6px;
-  font-size: 11px;
-  color: #7a6957;
-}
-
-pre {
-  background:#181511;
-  color:#f0dec0;
-  padding:12px;
-  overflow:auto;
-  border-radius:8px;
-  max-height: 340px;
-}
-
-.table { width:100%; border-collapse:collapse; font-size: 12px; }
+/* Status table */
+.table { width:100%; border-collapse:collapse; font-size:12px; }
 .table th,.table td { border-bottom:1px solid #eadcc7; padding:8px; text-align:left; }
-.table th { color: var(--muted); }
+.table th { color: var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
 
-.badge {
-  display:inline-block;
-  padding:4px 9px;
-  border-radius:99px;
-  background:#f3e5ca;
-  margin-right:6px;
-  margin-bottom: 6px;
-  font-size: 11px;
-}
+/* Badge */
+.badge { display:inline-block; padding:4px 9px; border-radius:99px; background:#f3e5ca; margin-right:6px; margin-bottom:6px; font-size:11px; }
 
-.status {
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--muted);
-}
+.status-msg { margin-top:10px; font-size:12px; color:var(--muted); }
+
+/* R1-R5 checklist */
+.r-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+.r-list li { display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:8px; font-size:12px; border:1px solid var(--border); }
+.r-list li.pass { background:#edf7ee; border-color:#a8d5ae; color: var(--green); }
+.r-list li.fail { background:#fce8e8; border-color:#e8a0a0; color: var(--red); }
+.r-list li.warn { background:#fff3e0; border-color:#f0c070; color: var(--orange); }
+.r-check { font-size:15px; }
+
+/* Pramana bar chart */
+.bar-wrap { margin-top:8px; }
+.bar-row { display:flex; align-items:center; margin-bottom:5px; gap:8px; font-size:12px; }
+.bar-label { width:140px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar-track { flex:1; background:#ede3d0; border-radius:4px; height:14px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#c85a14,#d88d2a); transition:width .4s; }
+.bar-val { width:32px; text-align:right; color:var(--muted); }
+
+/* Per-row table */
+.row-table { width:100%; border-collapse:collapse; font-size:12px; }
+.row-table th { background:#f3e9d9; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; padding:7px 8px; border-bottom:2px solid var(--border); }
+.row-table td { padding:7px 8px; border-bottom:1px solid #eadcc7; vertical-align:top; }
+.row-table tr:hover td { background:#fffaef; }
+.status-pill { display:inline-block; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:700; }
+.s-valid   { background:#d4edda; color:#155724; }
+.s-suspended { background:#fff3cd; color:#856404; }
+.s-unjustified { background:#f8d7da; color:#721c24; }
+.s-invalid  { background:#f8d7da; color:#721c24; }
+.s-error    { background:#e2e3e5; color:#383d41; }
+.detail-btn { cursor:pointer; background:none; border:1px solid var(--border); border-radius:6px; padding:3px 8px; font-size:11px; color:var(--muted); margin:0; }
+.detail-btn:hover { background:#f0e8d5; color:var(--ink); }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:999; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:0 20px 50px rgba(0,0,0,.25); padding:20px; width:min(680px,94vw); max-height:80vh; overflow:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.modal-title { font:700 15px "Cinzel",serif; color:var(--accent); }
+.modal-close { cursor:pointer; background:none; border:0; font-size:22px; color:var(--muted); line-height:1; margin:0; padding:0; }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <!-- Header -->
   <div class="card">
     <h1>Judge Dashboard</h1>
     <p class="sub">Upload dataset JSON and compute submission quality signals with transparent status breakdown and checklist output.</p>
@@ -180,35 +132,108 @@ pre {
     <div class="guide">
       <h3>How To Use</h3>
       <ol>
-        <li>Upload a valid JSON dataset.</li>
-        <li>Run Judge Analysis to compute quality metrics.</li>
-        <li>Review status distribution and checklist for gaps.</li>
+        <li>Upload a valid JSON dataset (list of inference payloads).</li>
+        <li>Click <strong>Run Judge Analysis</strong> to compute quality metrics.</li>
+        <li>Review the R1-R5 compliance checklist, pramana distribution, and per-row detail table.</li>
+        <li>Click <strong>Detail</strong> on any row to inspect the full epistemic trace.</li>
       </ol>
     </div>
   </div>
 
+  <!-- Upload -->
   <div class="card">
     <label for="dataset">Dataset JSON</label>
     <input id="dataset" type="file" accept="application/json">
-    <div class="hint">Accepted: UTF-8 JSON files compatible with infer upload schema.</div>
+    <div class="hint">Accepted: UTF-8 JSON — list of inference payloads or single payload with rules/evidence/request.</div>
     <button onclick="runJudge()">Run Judge Analysis</button>
-    <div id="status" class="status">Waiting for file upload.</div>
+    <div id="status-msg" class="status-msg">Waiting for file upload.</div>
   </div>
 
-  <div id="output" class="card" style="display:none"></div>
+  <!-- Results -->
+  <div id="output" style="display:none">
+
+    <!-- R1-R5 Checklist -->
+    <div class="card" id="r-card">
+      <h2>R1-R5 Compliance Checklist</h2>
+      <ul class="r-list" id="r-list"></ul>
+    </div>
+
+    <!-- Summary + Pramana Distribution -->
+    <div class="card" id="summary-card">
+      <h2>Quality Summary</h2>
+      <div id="summary-badges"></div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px">
+        <div style="flex:1;min-width:220px">
+          <h3>Status Distribution</h3>
+          <table class="table" id="status-table">
+            <thead><tr><th>Status</th><th>Count</th><th>%</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div style="flex:2;min-width:240px">
+          <h3>Pramana Distribution</h3>
+          <div class="bar-wrap" id="pramana-bars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-row detail table -->
+    <div class="card">
+      <h2>Per-Row Results</h2>
+      <div style="overflow-x:auto">
+        <table class="row-table" id="row-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Status</th>
+              <th>Pramana</th>
+              <th>Accepted</th>
+              <th>Trace Steps</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody id="row-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /output -->
+</div>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Row Detail</span>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    </div>
+    <pre id="modal-body"></pre>
+  </div>
 </div>
 
 <script>
+let _rowData = [];
+
+const STATUS_LABELS = {
+  R1_proposition_representation: "R1 Proposition Representation",
+  R2_epistemic_justification: "R2 Epistemic Justification",
+  R3_status_distinction: "R3 Status Distinction",
+  R4_invalid_patterns_rejected: "R4 Invalid Patterns Rejected",
+  R5_machine_readable_traces: "R5 Machine-Readable Traces",
+  inspectable_reasoning: "Inspectable Reasoning",
+  epistemic_constraints_enforced: "Epistemic Constraints",
+};
+
 async function runJudge() {
-  const status = document.getElementById('status');
+  const statusEl = document.getElementById('status-msg');
   const f = document.getElementById('dataset');
   if (!f.files || !f.files.length) {
     alert('Choose a JSON file first.');
-    status.textContent = 'Please choose a JSON file first.';
+    statusEl.textContent = 'Please choose a JSON file first.';
     return;
   }
-
-  status.textContent = 'Uploading dataset and running judge analysis...';
+  statusEl.textContent = 'Uploading dataset…';
+  document.getElementById('output').style.display = 'none';
 
   const formData = new FormData();
   formData.append('file', f.files[0]);
@@ -218,11 +243,11 @@ async function runJudge() {
   if (!uploadResp.ok) {
     const details = uploadData.detected_payload_message ? `\n${uploadData.detected_payload_message}` : '';
     alert((uploadData.error || 'Upload failed') + details);
-    status.textContent = uploadData.detected_payload_message
-      ? `Upload failed. ${uploadData.detected_payload_message}`
-      : 'Upload failed.';
+    statusEl.textContent = 'Upload failed.';
     return;
   }
+
+  statusEl.textContent = 'Running judge analysis…';
 
   const judgeResp = await fetch('/api/judge-report', {
     method: 'POST',
@@ -232,24 +257,94 @@ async function runJudge() {
   const judgeData = await judgeResp.json();
   if (!judgeResp.ok) {
     alert(judgeData.error || 'Judge analysis failed');
-    status.textContent = 'Judge analysis failed.';
+    statusEl.textContent = 'Judge analysis failed.';
     return;
   }
 
-  const counts = judgeData.status_counts;
-  const rows = Object.keys(counts).map(k => `<tr><td>${k}</td><td>${counts[k]}</td></tr>`).join('');
-  const output = document.getElementById('output');
-  output.style.display = 'block';
-  output.innerHTML = `
-    <h2>Judge Summary</h2>
-    <p><span class="badge">Detected: ${uploadData.detected_payload_type || 'unknown'}</span> <span class="badge">${uploadData.detected_payload_message || 'Schema detection unavailable'}</span></p>
-    <p><span class="badge">Total rows: ${judgeData.total}</span> <span class="badge">Quality score: ${judgeData.quality_score}</span></p>
-    <table class="table"><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>${rows}</tbody></table>
-    <h3>Checklist</h3>
-    <pre>${JSON.stringify(judgeData.checklist, null, 2)}</pre>
+  _rowData = judgeData.per_row || [];
+  renderResults(uploadData, judgeData);
+  document.getElementById('output').style.display = 'block';
+  statusEl.textContent = 'Analysis complete.';
+}
+
+function renderResults(upload, judge) {
+  // Badges
+  const badges = document.getElementById('summary-badges');
+  badges.innerHTML = `
+    <span class="badge">Payload: ${upload.detected_payload_type || 'unknown'}</span>
+    <span class="badge">Total rows: ${judge.total}</span>
+    <span class="badge">Quality score: ${judge.quality_score}</span>
   `;
 
-  status.textContent = 'Judge analysis complete.';
+  // R1-R5 checklist
+  const rList = document.getElementById('r-list');
+  rList.innerHTML = '';
+  const checklist = judge.checklist || {};
+  for (const [key, val] of Object.entries(checklist)) {
+    const label = STATUS_LABELS[key] || key;
+    const cls = val === true ? 'pass' : (val === false ? 'fail' : 'warn');
+    const icon = val === true ? '✓' : '✗';
+    rList.innerHTML += `<li class="${cls}"><span class="r-check">${icon}</span>${label}</li>`;
+  }
+
+  // Status distribution table
+  const tbody = document.querySelector('#status-table tbody');
+  tbody.innerHTML = '';
+  const counts = judge.status_counts || {};
+  const total = judge.total || 1;
+  for (const [k, v] of Object.entries(counts)) {
+    if (v === 0) continue;
+    tbody.innerHTML += `<tr><td>${k}</td><td>${v}</td><td>${((v/total)*100).toFixed(1)}%</td></tr>`;
+  }
+
+  // Pramana distribution bar chart
+  const bars = document.getElementById('pramana-bars');
+  bars.innerHTML = '';
+  const dist = judge.pramana_distribution || {};
+  const maxVal = Math.max(1, ...Object.values(dist));
+  for (const [p, v] of Object.entries(dist)) {
+    const pct = Math.round((v / maxVal) * 100);
+    bars.innerHTML += `
+      <div class="bar-row">
+        <span class="bar-label">${p}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <span class="bar-val">${v}</span>
+      </div>`;
+  }
+  if (!Object.keys(dist).length) {
+    bars.innerHTML = '<span style="color:var(--muted);font-size:12px">No pramana data available.</span>';
+  }
+
+  // Per-row table
+  const rowTbody = document.getElementById('row-tbody');
+  rowTbody.innerHTML = '';
+  (_rowData).forEach((row, i) => {
+    const statusClass = 's-' + (row.status || 'error');
+    const accepted = row.accepted ? '✓' : '✗';
+    const steps = row.trace_steps != null ? row.trace_steps : (row.error ? '—' : '0');
+    rowTbody.innerHTML += `<tr>
+      <td>${row.index ?? i}</td>
+      <td><span class="status-pill ${statusClass}">${row.status || 'error'}</span></td>
+      <td>${row.pramana || '—'}</td>
+      <td style="color:${row.accepted ? 'var(--green)':'var(--red)'}">${accepted}</td>
+      <td>${steps}</td>
+      <td><button class="detail-btn" onclick="showDetail(${i})">Detail</button></td>
+    </tr>`;
+  });
+}
+
+function showDetail(i) {
+  const row = _rowData[i];
+  if (!row) return;
+  document.getElementById('modal-title').textContent = `Row ${row.index ?? i} — ${row.status || 'error'}`;
+  document.getElementById('modal-body').textContent = JSON.stringify(row, null, 2);
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
 }
 </script>
 </body>

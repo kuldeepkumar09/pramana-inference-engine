@@ -132,6 +132,23 @@ class ReasoningTrace:
         }
 
 
+# ─── SCORING DIVERGENCE NOTE ─────────────────────────────────────────────────
+# EpistemicEvaluator.compute_justification_score uses a TWO-TERM formula:
+#   score = 0.45 * avg(proposition.confidence) + 0.55 * pramana_weighted_avg(evidence.reliability)
+# Fixed acceptance threshold: EpistemicEvaluationConfig.min_justification_threshold = 0.70
+#
+# engine.py._check_epistemic_constraints uses a ONE-TERM formula:
+#   calibrated_score = weighted_avg(evidence.reliability) ** calibration_exponent
+# Per-rule acceptance threshold: Rule.min_reliability (default 0.70)
+#
+# These are INTENTIONALLY different systems serving different API surfaces:
+#   - EpistemicEvaluator: web enrichment layer, advisory trace only. Its output
+#     does NOT gate result.accepted in engine.infer().
+#   - engine.py: authoritative gate; its status field determines result.accepted.
+# Do not unify without understanding both call sites. EpistemicEvaluator takes
+# EvidentialProposition.confidence (UI-layer inputs); engine.py takes
+# Evidence.reliability (rule-layer inputs) — they are not the same data.
+# ─────────────────────────────────────────────────────────────────────────────
 class EpistemicEvaluator:
     """Core epistemic evaluation engine for inferences."""
 

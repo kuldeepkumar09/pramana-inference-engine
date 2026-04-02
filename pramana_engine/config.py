@@ -25,10 +25,13 @@ class EmbeddingConfig:
     normalize_embeddings: bool = True
 
 
+_PROJECT_ROOT = Path(__file__).parent.parent
+
+
 @dataclass
 class VectorStoreConfig:
     """FAISS vector store configuration."""
-    persist_dir: str = "./vector_store_cache"
+    persist_dir: str = str(_PROJECT_ROOT / "vector_store_cache")
     auto_save: bool = True
     load_on_startup: bool = True
     index_type: str = "flatl2"  # or "ivf" for large indices
@@ -87,6 +90,8 @@ class LoggingConfig:
     log_file: str = "pramana_rag.log"
     max_log_size: int = 10_000_000  # 10MB
     backup_count: int = 5
+    # Set to "json" (via LOG_FORMAT env var) to emit structured JSON to the log file.
+    log_format: str = field(default_factory=lambda: os.environ.get("LOG_FORMAT", "text"))
 
 
 @dataclass
@@ -97,6 +102,9 @@ class APIConfig:
     debug: bool = False
     max_request_size: int = 16 * 1024 * 1024  # 16MB
     request_timeout: int = 180
+    demo_mode: bool = field(
+        default_factory=lambda: os.environ.get("PRAMANA_DEMO_MODE", "0").lower() in ("1", "true", "yes")
+    )
 
 
 class ProductionConfig:
@@ -120,7 +128,7 @@ class ProductionConfig:
         self.logging = LoggingConfig()
         self.api = APIConfig()
 
-        # Create vector store cache directory
+        # Create vector store cache directory (persist_dir is always absolute)
         Path(self.vector_store.persist_dir).mkdir(parents=True, exist_ok=True)
 
     @staticmethod

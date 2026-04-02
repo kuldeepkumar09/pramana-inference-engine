@@ -7,6 +7,26 @@ from hashlib import blake2b
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from .config import get_config as _get_config
+
+
+# Source authority tiers for citation credibility scoring (L4).
+# Primary texts: authoritative Nyaya / classical Indian philosophical sources.
+_HIGH_AUTH_SOURCES: frozenset = frozenset({
+    "nyaya sutra", "nyayasutra", "bhashya", "varttika",
+    "nyaya manjari", "nyayamanjari", "tattvacintamani", "tarkasangraha",
+    "nyaya vartika", "nyayavarttika",
+})
+# Secondary texts: related classical darshanas and commentaries.
+_MED_AUTH_SOURCES: frozenset = frozenset({
+    "vaisesika", "vaishesika", "mimamsa", "advaita", "vedanta",
+    "sankhya", "samkhya", "yoga sutra", "yogasutra",
+})
+
+# Weight of option-score ambiguity in contradiction signal (M8 calibration).
+# A value of 0.35 gives ambiguity a 35% contribution alongside polarity mismatches.
+# Threshold for no_strong_contradiction is read from PramanaConfig.max_contradiction_strength (0.45).
+_AMBIGUITY_WEIGHT: float = 0.35
 
 KNOWLEDGE_BASE: List[Dict[str, Any]] = [
     {
@@ -14,6 +34,13 @@ KNOWLEDGE_BASE: List[Dict[str, Any]] = [
         "source": "Nyaya Sutra 1.1.3",
         "text": "Pratyaksha, Anumana, Upamana, and Shabda are the four core pramanas.",
         "tags": ["pramana", "classification", "nyaya", "four-pramanas"],
+        "supports": ["perception", "inference", "comparison", "testimony"],
+    },
+    {
+        "id": "NS-1.1.3-SK",
+        "source": "Nyaya Sutra 1.1.3 (Sanskrit)",
+        "text": "Pratyakshanumanopamanashabdah pramanani — Perception, inference, comparison, and verbal testimony are the means of valid knowledge (pramana). Each pramana yields prama: valid, non-erroneous cognition of its object.",
+        "tags": ["pramana", "pratyaksha", "anumana", "upamana", "shabda", "sanskrit", "sutra"],
         "supports": ["perception", "inference", "comparison", "testimony"],
     },
     {
@@ -31,10 +58,24 @@ KNOWLEDGE_BASE: List[Dict[str, Any]] = [
         "supports": ["perception"],
     },
     {
+        "id": "VB-1.1.1-SK",
+        "source": "Vatsyayana Bhashya 1.1.1 (Sanskrit)",
+        "text": "Indriyarthasannikarshajam jnanam pratyaksham — Knowledge born of sense-object contact is perception (pratyaksha). This is the most direct and authoritative pramana: it ultimately verifies all knowledge including the vyapti needed for inference.",
+        "tags": ["indriya", "artha", "sannikarsha", "pratyaksha", "perception", "direct", "foundational", "sanskrit"],
+        "supports": ["perception"],
+    },
+    {
         "id": "NS-1.1.5",
         "source": "Nyaya Sutra 1.1.5",
         "text": "Anumana depends on established vyapti and inferential signs (hetu).",
         "tags": ["anumana", "vyapti", "hetu", "inference"],
+        "supports": ["inference"],
+    },
+    {
+        "id": "NS-1.1.5-PARVATA",
+        "source": "Nyaya Sutra 1.1.5 — Parvata Example",
+        "text": "Parvato vahnimat dhumatvat — the mountain (parvata) has fire (vahni) because it has smoke (dhuma). The hill has fire, the hill has smoke, wherever there is smoke there is fire as in a kitchen. This is the canonical Nyaya smoke-fire inference.",
+        "tags": ["parvata", "vahni", "dhuma", "hill", "fire", "smoke", "anumana", "vyapti", "sanskrit", "inference"],
         "supports": ["inference"],
     },
     {
@@ -43,6 +84,13 @@ KNOWLEDGE_BASE: List[Dict[str, Any]] = [
         "text": "Shabda gains force from apta-vacana, testimony of credible knowers.",
         "tags": ["shabda", "testimony", "authority", "apta"],
         "supports": ["testimony"],
+    },
+    {
+        "id": "NS-UPAMANA",
+        "source": "Nyaya Sutra 1.1.6 — Upamana",
+        "text": "Upamana is knowledge of a thing through its similarity to another known thing. If one is told that a gavaya (wild ox) resembles a cow, and later observes a gavaya in the forest, one gains knowledge through upamana — comparison. This is distinct from inference.",
+        "tags": ["upamana", "gavaya", "comparison", "analogy", "similarity", "forest", "cow"],
+        "supports": ["comparison"],
     },
     {
         "id": "CONF-2026-OVERVIEW",
@@ -154,18 +202,51 @@ DOMAIN_QUERY_MARKERS: Tuple[str, ...] = (
 )
 
 
+# Devanagari → Latin transliteration for key Nyaya/philosophical terms.
+# Multi-character strings must come before single-character fallbacks so that
+# compound syllables (e.g. न्याय) are matched whole before their constituents.
+_DEVANAGARI_MAP: Dict[str, str] = {
+    "न्याय": "nyaya",
+    "सूत्र": "sutra",
+    "प्रत्यक्ष": "pratyaksha",
+    "अनुमान": "anumana",
+    "शब्द": "shabda",
+    "उपमान": "upamana",
+    "अर्थापत्ति": "arthapatti",
+    "अनुपलब्धि": "anupalabdhi",
+    "व्याप्ति": "vyapti",
+    "हेतु": "hetu",
+    "साध्य": "sadhya",
+    "पक्ष": "paksha",
+    "हेत्वाभास": "hetvabhasa",
+    "दर्शन": "darshana",
+    "प्रमाण": "pramana",
+    "अभाव": "abhava",
+    "निगमन": "nigamana",
+}
+
+
 def _norm(text: str) -> str:
+    import unicodedata
+    # NFC normalisation collapses precomposed + combining forms to a single code point
+    text = unicodedata.normalize("NFC", text).lower()
+    # Devanagari transliteration — apply longest matches first
+    for devanagari, latin in _DEVANAGARI_MAP.items():
+        text = text.replace(devanagari, latin)
     return (
-        text.lower()
+        text
         .replace("ā", "a")
         .replace("ī", "i")
         .replace("ū", "u")
-        .replace("ṣ", "s")
-        .replace("ś", "s")
+        .replace("ṣ", "s")   # retroflex sibilant
+        .replace("ś", "s")   # palatal sibilant
         .replace("ñ", "n")
         .replace("ṛ", "r")
-        .replace("ṇ", "n")
+        .replace("ṇ", "n")   # retroflex n
         .replace("ṁ", "m")
+        .replace("ṭ", "t")   # retroflex t
+        .replace("ḍ", "d")   # retroflex d
+        .replace("ḥ", "h")   # visarga
     )
 
 
@@ -462,7 +543,10 @@ def _graph_alignment_score(question: str, answer_text: str) -> float:
         if (src in q_entities and dst in a_entities) or (dst in q_entities and src in a_entities):
             connected += 1
 
-    return min(1.0, connected / 4.0)
+    # Normalize by 1% of corpus edges (corpus-size-aware), floor at 4 to
+    # prevent single-edge saturation on tiny corpora.
+    denominator = max(4.0, len(graph.get("edges", [])) * 0.01)
+    return min(1.0, connected / denominator)
 
 
 def _question_polarity(question: str) -> str:
@@ -496,11 +580,17 @@ def _source_authority(citations: List[Dict[str, Any]]) -> float:
         if cid.startswith("RULE:"):
             vals.append(0.95)
         elif cid.startswith("EXT:"):
-            vals.append(0.72)
-        elif "nyaya sutra" in src or "bhashya" in src or "varttika" in src:
-            vals.append(0.9)
+            # Tier-based authority for external corpus chunks (L4)
+            if any(h in src for h in _HIGH_AUTH_SOURCES):
+                vals.append(0.90)
+            elif any(m in src for m in _MED_AUTH_SOURCES):
+                vals.append(0.75)
+            else:
+                vals.append(0.65)
+        elif any(h in src for h in _HIGH_AUTH_SOURCES):
+            vals.append(0.90)
         else:
-            vals.append(0.8)
+            vals.append(0.80)
     return round(sum(vals) / max(1, len(vals)), 4)
 
 
@@ -558,7 +648,7 @@ def _run_symbolic_verifier(
             margin = (top - runner) / top
             ambiguity = max(0.0, min(1.0, 1.0 - margin))
 
-    contradiction_strength = min(1.0, (mismatches / max(1, len(citations))) + 0.35 * ambiguity)
+    contradiction_strength = min(1.0, (mismatches / max(1, len(citations))) + _AMBIGUITY_WEIGHT * ambiguity)
     contradiction_penalty = round(-contradiction_strength, 4)
 
     retrieval = _retrieval_support(citations)
@@ -572,20 +662,27 @@ def _run_symbolic_verifier(
 
     constraints = {
         "non_empty_answer": bool(answer_text.strip()),
-        "has_retrieval_support": retrieval >= 0.15,
+        # Rule bank and named rule matches ARE curated retrieval — they satisfy retrieval support.
+        "has_retrieval_support": retrieval >= 0.15 or used_rule_bank or rule_match is not None,
         "rule_satisfiable": rule_consistency >= 0.6,
-        "no_strong_contradiction": contradiction_strength < 0.45,
+        "no_strong_contradiction": contradiction_strength < _get_config().pramana.max_contradiction_strength,
     }
     violated = [k for k, v in constraints.items() if not v]
     verifier_pass = len(violated) == 0
 
-    preliminary_status = "valid" if verifier_pass else "unjustified"
+    # When logic is sound but retrieval signal is weak (only has_retrieval_support fails),
+    # use "suspended" rather than "unjustified" — suspension is epistemically more accurate
+    # for answers with valid structure but insufficient grounding evidence.
+    if not verifier_pass and violated == ["has_retrieval_support"] and constraints["rule_satisfiable"] and constraints["non_empty_answer"]:
+        preliminary_status = "suspended"
+    else:
+        preliminary_status = "valid" if verifier_pass else "unjustified"
     belief_revision_applied = False
     final_status = preliminary_status
-    if contradiction_strength >= 0.45 and preliminary_status == "valid":
+    if contradiction_strength >= _get_config().pramana.max_contradiction_strength and preliminary_status == "valid":
         final_status = "suspended"
         belief_revision_applied = True
-    elif contradiction_strength >= 0.45 and preliminary_status != "valid":
+    elif contradiction_strength >= _get_config().pramana.max_contradiction_strength and preliminary_status != "valid":
         final_status = "suspended"
 
     return {
